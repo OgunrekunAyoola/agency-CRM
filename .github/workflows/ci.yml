@@ -9,6 +9,8 @@ on:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
+    env:
+      ASPNETCORE_ENVIRONMENT: Development
 
     services:
       postgres:
@@ -43,7 +45,6 @@ jobs:
     - name: Run Backend Tests
       run: dotnet test backend/AgencyCrm.sln --no-build --verbosity normal
       env:
-        ASPNETCORE_ENVIRONMENT: Development
         ConnectionStrings__Default: Host=localhost;Database=agency_crm;Username=postgres;Password=postgres
         Jwt__Key: ci_test_secret_key_long_enough_for_validation_32_chars!
 

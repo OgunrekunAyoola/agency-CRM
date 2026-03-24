@@ -1,19 +1,19 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Crm.Api", "Crm.Api\Crm.Api.csproj", "{E7B98475-6030-41EB-8852-E39199B263D8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Crm.Api", "Crm.Api/Crm.Api.csproj", "{E7B98475-6030-41EB-8852-E39199B263D8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Crm.Application", "Crm.Application\Crm.Application.csproj", "{FABB7A3D-A010-4857-8C1A-DBC7F1D37D94}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Crm.Application", "Crm.Application/Crm.Application.csproj", "{FABB7A3D-A010-4857-8C1A-DBC7F1D37D94}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Crm.Domain", "Crm.Domain\Crm.Domain.csproj", "{1AD067AA-3BCA-4E4C-9A07-64CA3AFD383B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Crm.Domain", "Crm.Domain/Crm.Domain.csproj", "{1AD067AA-3BCA-4E4C-9A07-64CA3AFD383B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Crm.Infrastructure", "Crm.Infrastructure\Crm.Infrastructure.csproj", "{A7CE09CD-A2B3-4D4B-A6E8-D4315570413E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Crm.Infrastructure", "Crm.Infrastructure/Crm.Infrastructure.csproj", "{A7CE09CD-A2B3-4D4B-A6E8-D4315570413E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Crm.UnitTests", "Crm.UnitTests\Crm.UnitTests.csproj", "{A81028FB-E513-4A53-9300-941D65040C13}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Crm.UnitTests", "Crm.UnitTests/Crm.UnitTests.csproj", "{A81028FB-E513-4A53-9300-941D65040C13}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Crm.IntegrationTests", "Crm.IntegrationTests\Crm.IntegrationTests.csproj", "{F4630B36-E3E4-45F7-A201-594BFA067D68}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Crm.IntegrationTests", "Crm.IntegrationTests/Crm.IntegrationTests.csproj", "{F4630B36-E3E4-45F7-A201-594BFA067D68}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
