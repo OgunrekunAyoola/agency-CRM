@@ -22,10 +22,10 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     environment:
-      - ConnectionStrings__Default=Host=db;Database=${DB_NAME:-agency_crm};Username=${DB_USER:-postgres};Password=${DB_PASSWORD:-postgres}
-      - Jwt__Key=${JWT_KEY:-super_secret_long_key_for_agency_crm_mvp_development_123!}
-      - Jwt__Issuer=${JWT_ISSUER:-agency_crm}
-      - Jwt__Audience=${JWT_AUDIENCE:-agency_crm}
+      - ConnectionStrings__Default=Host=db;Database=${DB_NAME};Username=${DB_USER};Password=${DB_PASSWORD}
+      - Jwt__Key=${JWT_KEY}
+      - Jwt__Issuer=${JWT_ISSUER}
+      - Jwt__Audience=${JWT_AUDIENCE}
       - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT:-Development}
     ports:
       - "${API_PORT:-8000}:8000"
