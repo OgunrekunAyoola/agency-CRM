@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import { useProjects } from '@/hooks/queries/useProjects';
 import { useTasks } from '@/hooks/queries/useTasks';
 import { useTimeEntries } from '@/hooks/queries/useTimeEntries';
@@ -37,7 +37,7 @@ export default function ProjectDetailsPage() {
       await createEntry({ ...newTime, projectId, date: new Date(newTime.date).toISOString() });
       setIsTimeModalOpen(false);
       toast.success('Time logged successfully');
-    } catch (err) {
+    } catch {
       toast.error('Failed to log time');
     }
   };
@@ -48,7 +48,7 @@ export default function ProjectDetailsPage() {
       await createMetric({ ...newAd, projectId, date: new Date(newAd.date).toISOString() });
       setIsAdModalOpen(false);
       toast.success('Ad metrics saved');
-    } catch (err) {
+    } catch {
       toast.error('Failed to save metrics');
     }
   };

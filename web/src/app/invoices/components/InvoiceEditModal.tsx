@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Modal } from '@/components/ui/Modal';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
@@ -16,15 +16,18 @@ interface InvoiceEditModalProps {
 export const InvoiceEditModal = ({ isOpen, onClose, invoice }: InvoiceEditModalProps) => {
   const { updateInvoice, isUpdatingInvoice } = useInvoices();
   
-  const [items, setItems] = useState<Partial<InvoiceItem>[]>([]);
-  const [dueDate, setDueDate] = useState('');
+  const [items, setItems] = useState<Partial<InvoiceItem>[]>(
+    invoice?.items?.length 
+      ? [...invoice.items] 
+      : [{ description: '', quantity: 1, unitPrice: 0 }]
+  );
+  const [dueDate, setDueDate] = useState(
+    invoice?.dueDate 
+      ? new Date(invoice.dueDate).toISOString().split('T')[0] 
+      : ''
+  );
 
-  useEffect(() => {
-    if (invoice) {
-        setItems(invoice.items.length ? [...invoice.items] : [{ description: '', quantity: 1, unitPrice: 0 }]);
-        setDueDate(new Date(invoice.dueDate).toISOString().split('T')[0]);
-    }
-  }, [invoice]);
+
 
   const validate = () => {
     if (!dueDate) return false;

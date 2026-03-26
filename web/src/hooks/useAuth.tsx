@@ -20,13 +20,13 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
     // Initial check - we can't see the cookie, but we can try to fetch the dashboard or a dedicated /me endpoint
     // For now, if we get a 401 on any initial fetch, we know we are logged out.
-    setLoading(false);
+    // setLoading is already false by default for now.
   }, []);
 
   const login = async (email: string, password: string) => {

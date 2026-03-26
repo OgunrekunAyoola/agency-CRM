@@ -21,7 +21,7 @@ export default function InvoicesPage() {
     try {
       await updateStatus({ id, status: InvoiceStatus.Paid });
       toast.success('Invoice marked as Paid');
-    } catch (err) {
+    } catch {
       toast.error('Failed to update invoice status');
     }
   };
@@ -118,6 +118,7 @@ export default function InvoicesPage() {
       </Section>
       
       <InvoiceEditModal
+        key={editingInvoice?.id}
         isOpen={!!editingInvoice}
         onClose={() => setEditingInvoice(null)}
         invoice={editingInvoice}

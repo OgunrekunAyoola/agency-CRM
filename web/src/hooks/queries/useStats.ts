@@ -6,10 +6,10 @@ export const useStats = () => {
     queryKey: ['stats'],
     queryFn: async () => {
       const [clients, leads, offers, projects] = await Promise.all([
-        api.get<any[]>('/api/clients'),
-        api.get<any[]>('/api/leads'),
-        api.get<any[]>('/api/offers'),
-        api.get<any[]>('/api/projects'),
+        api.get<unknown[]>('/api/clients'),
+        api.get<unknown[]>('/api/leads'),
+        api.get<unknown[]>('/api/offers'),
+        api.get<unknown[]>('/api/projects'),
       ]);
       return {
         clients: clients.length,

@@ -58,7 +58,9 @@ public class ContractService
         var project = await _projectRepository.GetByIdAsync(projectId) 
             ?? throw new KeyNotFoundException("Project not found");
         
-        var offer = await _offerRepository.GetByIdAsync(project.OfferId);
+        var offer = project.OfferId.HasValue 
+            ? await _offerRepository.GetByIdAsync(project.OfferId.Value)
+            : null;
 
         var contract = new Contract
         {
