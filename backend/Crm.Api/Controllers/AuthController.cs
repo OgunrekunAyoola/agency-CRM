@@ -9,13 +9,15 @@ namespace Crm.Api.Controllers;
 [Route("api/[controller]")]
 public class AuthController : ControllerBase
 {
-    private readonly AuthService _authService;
+    private readonly IAuthService _authService;
     private readonly ILogger<AuthController> _logger;
+    private readonly IWebHostEnvironment _env;
 
-    public AuthController(AuthService authService, ILogger<AuthController> logger)
+    public AuthController(IAuthService authService, ILogger<AuthController> logger, IWebHostEnvironment env)
     {
         _authService = authService;
         _logger = logger;
+        _env = env;
     }
 
     [AllowAnonymous]
@@ -78,8 +80,9 @@ public class AuthController : ControllerBase
         {
             HttpOnly = true,
             Expires = name == "refresh_token" ? DateTime.UtcNow.AddDays(7) : DateTime.UtcNow.AddMinutes(15),
-            Secure = false, // Set to true in prod. Set to false for local dev over HTTP.
-            SameSite = SameSiteMode.Lax // Changed from Strict to Lax for easier local dev across ports
+            Secure = !_env.IsDevelopment(), // Secure cookies in production/staging (requires HTTPS)
+            SameSite = SameSiteMode.Lax, // Changed from Strict to Lax for easier local dev across ports
+            Path = "/" // Explicitly set path to root so all API endpoints can receive the cookie
         };
         Response.Cookies.Append(name, token, cookieOptions);
     }

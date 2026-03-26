@@ -1,4 +1,6 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || '';
+// Use relative paths in the browser to leverage the Next.js proxy (next.config.ts)
+// This avoids ERR_CONNECTION_REFUSED and CORS issues in the browser console.
+const API_BASE_URL = typeof window !== 'undefined' ? '' : (process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000');
 
 export async function apiRequest<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
   const headers = {
@@ -12,7 +14,8 @@ export async function apiRequest<T>(endpoint: string, options: RequestInit = {})
     credentials: 'include',
   };
 
-  let response = await fetch(`${API_BASE_URL}${endpoint}`, fetchOptions);
+  const normalizedEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+  let response = await fetch(`${API_BASE_URL}${normalizedEndpoint}`, fetchOptions);
 
   if (response.status === 401 && !endpoint.includes('/auth/login') && !endpoint.includes('/auth/refresh')) {
     try {
@@ -23,7 +26,7 @@ export async function apiRequest<T>(endpoint: string, options: RequestInit = {})
       });
 
       if (refreshResponse.ok) {
-        response = await fetch(`${API_BASE_URL}${endpoint}`, fetchOptions);
+        response = await fetch(`${API_BASE_URL}${normalizedEndpoint}`, fetchOptions);
       }
     } catch (err) {
       console.error('Auto-refresh failed', err);

@@ -115,6 +115,35 @@ All sensitive values can be overridden via environment variables. Key variables 
 ### 3. AppSettings
 Non-sensitive defaults are stored in `appsettings.json`. In production, these should be supplemented with `appsettings.Production.json` or Environment Variables following the `Section__Key` pattern (e.g., `ConnectionStrings__Default`).
 
+## Database Configuration 🛢️
+
+The application uses an environment-driven database configuration to support both local development and cloud platforms like Railway.
+
+### 1. Connection String Priority
+The backend resolves the PostgreSQL connection string in this order:
+1. `DATABASE_URL` environment variable (Supports URIs like `postgres://user:password@host:port/db`).
+2. `ConnectionStrings:Default` as defined in `appsettings.Development.json` (Local fallback).
+3. `ConnectionStrings:Default` as defined in `appsettings.json`.
+
+### 2. Using Railway Postgres
+To use a Railway Postgres instance (locally or in production):
+- Set the `DATABASE_URL` environment variable to the **External Connection String** provided by Railway.
+- The application automatically parses this URI into the format required by EF Core.
+
+## Data Migration to Railway 🚀
+
+If you have existing data in your local Docker Postgres and want to move it to Railway:
+
+1. **Dump local data**:
+   ```bash
+   pg_dump -h localhost -p 5433 -U postgres agency_crm > backup.sql
+   ```
+2. **Restore to Railway**:
+   Use the Railway CLI or pure `psql` (replace `<RAILWAY_URL>` with your external connection string):
+   ```bash
+   psql "<RAILWAY_URL>" < backup.sql
+   ```
+
 > [!IMPORTANT]
 > Never commit a `.env` file containing real secrets to version control. Always use the `.env.example` patterns for documentation.
 

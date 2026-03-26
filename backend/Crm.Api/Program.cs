@@ -16,6 +16,22 @@ using System.Diagnostics;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Resolve Connection String
+var rawDatabaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
+var isUsingRailway = !string.IsNullOrEmpty(rawDatabaseUrl);
+var connectionString = isUsingRailway 
+    ? ParseDatabaseUrl(rawDatabaseUrl) 
+    : builder.Configuration.GetConnectionString("Default");
+
+if (string.IsNullOrEmpty(connectionString))
+{
+    throw new InvalidOperationException("Connection string 'Default' not found or DATABASE_URL environment variable is missing.");
+}
+
+Log.Information(isUsingRailway 
+    ? "Using Railway DATABASE_URL for database connection." 
+    : "Using local appsettings configuration for database connection.");
+
 // Serilog Configuration
 Log.Logger = new LoggerConfiguration()
     .ReadFrom.Configuration(builder.Configuration)
@@ -44,7 +60,7 @@ builder.Services.AddCors(options =>
 
 // EF Core + Postgres
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("Default")));
+    options.UseNpgsql(connectionString));
 
 // Security & Context
 builder.Services.AddHttpContextAccessor();
@@ -67,7 +83,6 @@ builder.Services.AddScoped<AdMetricsSyncJob>();
 builder.Services.AddScoped<RemindersJob>();
 
 // Hangfire
-var connectionString = builder.Configuration.GetConnectionString("Default");
 if (!string.IsNullOrEmpty(connectionString))
 {
     builder.Services.AddHangfire(config => config
@@ -133,7 +148,32 @@ if (app.Environment.IsDevelopment())
     }
 }
 
+// Migrate Database on Startup
+using (var scope = app.Services.CreateScope())
+{
+    try
+    {
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        if (db.Database.GetPendingMigrations().Any())
+        {
+            Log.Information("Applying pending migrations...");
+            db.Database.Migrate();
+            Log.Information("Migrations applied successfully.");
+        }
+    }
+    catch (Exception ex)
+    {
+        Log.Error(ex, "An error occurred while migrating the database.");
+    }
+}
+
 // Configure the HTTP request pipeline.
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+
 if (!app.Environment.IsDevelopment())
 {
     app.UseHsts();
@@ -192,4 +232,22 @@ app.MapControllers();
 
 app.Run();
 
-public partial class Program { }
+public partial class Program 
+{ 
+    private static string ParseDatabaseUrl(string url)
+    {
+        if (string.IsNullOrEmpty(url)) return null;
+        if (!url.StartsWith("postgres://") && !url.StartsWith("postgresql://")) return url;
+
+        var uri = new Uri(url);
+        var userInfo = uri.UserInfo.Split(':');
+        var username = userInfo[0];
+        var password = userInfo.Length > 1 ? userInfo[1] : "";
+        var host = uri.Host;
+        var port = uri.Port > 0 ? uri.Port : 5432;
+        var database = uri.AbsolutePath.TrimStart('/');
+
+        // Railway usually requires SSL. Trust Server Certificate is often needed for dynamic environments.
+        return $"Host={host};Port={port};Database={database};Username={username};Password={password};SSL Mode=Require;Trust Server Certificate=true";
+    }
+}
