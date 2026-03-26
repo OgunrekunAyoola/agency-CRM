@@ -13,6 +13,7 @@ using Crm.Api.Middleware;
 using Crm.Infrastructure.Monitoring;
 
 using System.Diagnostics;
+using System.Linq;
 
 var builder = WebApplication.CreateBuilder(args);
 

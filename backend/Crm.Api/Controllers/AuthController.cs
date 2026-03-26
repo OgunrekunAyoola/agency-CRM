@@ -9,11 +9,11 @@ namespace Crm.Api.Controllers;
 [Route("api/[controller]")]
 public class AuthController : ControllerBase
 {
-    private readonly IAuthService _authService;
+    private readonly AuthService _authService;
     private readonly ILogger<AuthController> _logger;
     private readonly IWebHostEnvironment _env;
 
-    public AuthController(IAuthService authService, ILogger<AuthController> logger, IWebHostEnvironment env)
+    public AuthController(AuthService authService, ILogger<AuthController> logger, IWebHostEnvironment env)
     {
         _authService = authService;
         _logger = logger;
