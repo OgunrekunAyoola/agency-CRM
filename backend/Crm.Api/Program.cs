@@ -67,13 +67,17 @@ builder.Services.AddScoped<AdMetricsSyncJob>();
 builder.Services.AddScoped<RemindersJob>();
 
 // Hangfire
-builder.Services.AddHangfire(config => config
-    .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
-    .UseSimpleAssemblyNameTypeSerializer()
-    .UseRecommendedSerializerSettings()
-    .UsePostgreSqlStorage(options => options.UseNpgsqlConnection(builder.Configuration.GetConnectionString("Default"))));
+var connectionString = builder.Configuration.GetConnectionString("Default");
+if (!string.IsNullOrEmpty(connectionString))
+{
+    builder.Services.AddHangfire(config => config
+        .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+        .UseSimpleAssemblyNameTypeSerializer()
+        .UseRecommendedSerializerSettings()
+        .UsePostgreSqlStorage(options => options.UseNpgsqlConnection(connectionString)));
 
-builder.Services.AddHangfireServer();
+    builder.Services.AddHangfireServer();
+}
 
 // JWT Authentication
 var jwtSettings = builder.Configuration.GetSection("Jwt");
@@ -165,20 +169,23 @@ app.UseHangfireDashboard("/hangfire", new DashboardOptions
 });
 
 // Schedule Recurring Jobs
-using (var scope = app.Services.CreateScope())
+if (!string.IsNullOrEmpty(connectionString))
 {
-    var recurringJobManager = scope.ServiceProvider.GetRequiredService<IRecurringJobManager>();
-    var config = builder.Configuration.GetSection("BackgroundJobs");
+    using (var scope = app.Services.CreateScope())
+    {
+        var recurringJobManager = scope.ServiceProvider.GetRequiredService<IRecurringJobManager>();
+        var config = builder.Configuration.GetSection("BackgroundJobs");
 
-    recurringJobManager.AddOrUpdate<AdMetricsSyncJob>(
-        "ad-metrics-sync",
-        job => job.ExecuteAsync(),
-        config["AdMetricsSyncInterval"] ?? Cron.Daily());
+        recurringJobManager.AddOrUpdate<AdMetricsSyncJob>(
+            "ad-metrics-sync",
+            job => job.ExecuteAsync(),
+            config["AdMetricsSyncInterval"] ?? Cron.Daily());
 
-    recurringJobManager.AddOrUpdate<RemindersJob>(
-        "daily-reminders",
-        job => job.ExecuteAsync(),
-        config["RemindersInterval"] ?? Cron.Daily());
+        recurringJobManager.AddOrUpdate<RemindersJob>(
+            "daily-reminders",
+            job => job.ExecuteAsync(),
+            config["RemindersInterval"] ?? Cron.Daily());
+    }
 }
 
 app.MapControllers();

@@ -7,10 +7,12 @@ namespace Crm.Application.Services;
 public class ProjectService
 {
     private readonly IGenericRepository<Project> _repository;
+    private readonly ICurrentUserContext _currentUserContext;
 
-    public ProjectService(IGenericRepository<Project> repository)
+    public ProjectService(IGenericRepository<Project> repository, ICurrentUserContext currentUserContext)
     {
         _repository = repository;
+        _currentUserContext = currentUserContext;
     }
 
     public async Task<IEnumerable<ProjectResponse>> GetAllAsync()
@@ -34,7 +36,8 @@ public class ProjectService
             Name = request.Name,
             Description = request.Description,
             ClientId = request.ClientId,
-            OfferId = request.OfferId
+            OfferId = request.OfferId,
+            TenantId = _currentUserContext.TenantId ?? Guid.Empty
         };
 
         await _repository.AddAsync(project);

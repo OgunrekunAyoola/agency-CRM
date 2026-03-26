@@ -7,10 +7,12 @@ namespace Crm.Application.Services;
 public class AdMetricService
 {
     private readonly IGenericRepository<AdMetric> _repository;
+    private readonly ICurrentUserContext _currentUserContext;
 
-    public AdMetricService(IGenericRepository<AdMetric> repository)
+    public AdMetricService(IGenericRepository<AdMetric> repository, ICurrentUserContext currentUserContext)
     {
         _repository = repository;
+        _currentUserContext = currentUserContext;
     }
 
     public async Task<IEnumerable<AdMetricResponse>> GetProjectMetricsAsync(Guid projectId)
@@ -36,7 +38,8 @@ public class AdMetricService
             Impressions = request.Impressions,
             Clicks = request.Clicks,
             Conversions = request.Conversions,
-            Date = request.Date
+            Date = request.Date,
+            TenantId = _currentUserContext.TenantId ?? Guid.Empty
         };
 
         await _repository.AddAsync(metric);

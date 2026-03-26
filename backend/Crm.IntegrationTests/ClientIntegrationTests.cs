@@ -33,7 +33,6 @@ public class IntegrationTests : IClassFixture<WebApplicationFactory<Program>>, I
         _factory = factory;
         _client = factory.CreateClient();
     }
-
     public async Task InitializeAsync()
     {
         using var scope = _factory.Services.CreateScope();
@@ -45,6 +44,7 @@ public class IntegrationTests : IClassFixture<WebApplicationFactory<Program>>, I
             if (!_dbInitialized)
             {
                 context.Database.Migrate();
+                DbInitializer.SeedAsync(_factory.Services).Wait();
                 _dbInitialized = true;
             }
         }
@@ -76,7 +76,10 @@ public class IntegrationTests : IClassFixture<WebApplicationFactory<Program>>, I
             }
         });
 
-        await _respawner.ResetAsync(connection);
+        if (connection != null)
+        {
+            await _respawner.ResetAsync(connection);
+        }
     }
 
     public Task DisposeAsync() => Task.CompletedTask;
@@ -85,6 +88,8 @@ public class IntegrationTests : IClassFixture<WebApplicationFactory<Program>>, I
     {
         var response = await _client.PostAsJsonAsync("/api/auth/login", new LoginRequest { Email = email, Password = password });
         await CheckSuccessAsync(response);
+        var result = await response.Content.ReadFromJsonAsync<AuthResponse>();
+        _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", result!.AccessToken);
     }
 
     private async Task CheckSuccessAsync(HttpResponseMessage response)
@@ -142,23 +147,29 @@ public class IntegrationTests : IClassFixture<WebApplicationFactory<Program>>, I
         await AuthenticateAsync();
 
         var clientResp = await _client.PostAsJsonAsync("/api/clients", new { Name = "Shared Client" });
+        await CheckSuccessAsync(clientResp);
         var client = await clientResp.Content.ReadFromJsonAsync<ClientResponse>();
 
         var leadReq = new { Title = "Multi Offer Lead", ClientId = client!.Id };
         var leadResp = await _client.PostAsJsonAsync("/api/leads", leadReq);
+        await CheckSuccessAsync(leadResp);
         var lead = await leadResp.Content.ReadFromJsonAsync<LeadResponse>();
 
         // Offer 1
         var offer1Req = new { Title = "Offer 1", TotalAmount = 1000, LeadId = lead!.Id };
         var offer1Resp = await _client.PostAsJsonAsync("/api/offers", offer1Req);
+        await CheckSuccessAsync(offer1Resp);
         var offer1 = await offer1Resp.Content.ReadFromJsonAsync<OfferResponse>();
-        await _client.PatchAsJsonAsync($"/api/offers/{offer1!.Id}/status", new UpdateOfferStatusRequest { Status = OfferStatus.Accepted });
+        var patch1Resp = await _client.PatchAsJsonAsync($"/api/offers/{offer1!.Id}/status", new UpdateOfferStatusRequest { Status = OfferStatus.Accepted });
+        await CheckSuccessAsync(patch1Resp);
 
         // Offer 2
         var offer2Req = new { Title = "Offer 2", TotalAmount = 2000, LeadId = lead.Id };
         var offer2Resp = await _client.PostAsJsonAsync("/api/offers", offer2Req);
+        await CheckSuccessAsync(offer2Resp);
         var offer2 = await offer2Resp.Content.ReadFromJsonAsync<OfferResponse>();
-        await _client.PatchAsJsonAsync($"/api/offers/{offer2!.Id}/status", new UpdateOfferStatusRequest { Status = OfferStatus.Accepted });
+        var patch2Resp = await _client.PatchAsJsonAsync($"/api/offers/{offer2!.Id}/status", new UpdateOfferStatusRequest { Status = OfferStatus.Accepted });
+        await CheckSuccessAsync(patch2Resp);
 
         var clientsResp = await _client.GetAsync("/api/clients");
         var clients = await clientsResp.Content.ReadFromJsonAsync<IEnumerable<ClientResponse>>();
@@ -172,6 +183,7 @@ public class IntegrationTests : IClassFixture<WebApplicationFactory<Program>>, I
         await AuthenticateAsync();
 
         var clientResp = await _client.PostAsJsonAsync("/api/clients", new { Name = "Invoice Test Client" });
+        await CheckSuccessAsync(clientResp);
         var client = await clientResp.Content.ReadFromJsonAsync<ClientResponse>();
 
         var leadReq = new { Title = "Invoice Lead", ClientId = client!.Id };
@@ -184,6 +196,7 @@ public class IntegrationTests : IClassFixture<WebApplicationFactory<Program>>, I
 
         var projectReq = new { Name = "Invoice Project", ClientId = client!.Id, OfferId = offer!.Id };
         var projectResp = await _client.PostAsJsonAsync("/api/projects", projectReq);
+        await CheckSuccessAsync(projectResp);
         var project = await projectResp.Content.ReadFromJsonAsync<ProjectResponse>();
 
         // Generate $0 invoice
@@ -219,6 +232,7 @@ public class IntegrationTests : IClassFixture<WebApplicationFactory<Program>>, I
         await AuthenticateAsync();
 
         var clientResp = await _client.PostAsJsonAsync("/api/clients", new { Name = "Metrics Client" });
+        await CheckSuccessAsync(clientResp);
         var client = await clientResp.Content.ReadFromJsonAsync<ClientResponse>();
 
         var leadReq = new { Title = "Metrics Lead", ClientId = client!.Id };
@@ -231,14 +245,17 @@ public class IntegrationTests : IClassFixture<WebApplicationFactory<Program>>, I
 
         var projectReq = new { Name = "Metrics Project", ClientId = client!.Id, OfferId = offer!.Id };
         var projectResp = await _client.PostAsJsonAsync("/api/projects", projectReq);
+        await CheckSuccessAsync(projectResp);
         var project = await projectResp.Content.ReadFromJsonAsync<ProjectResponse>();
 
         // Seed some data
         var timeReq = new CreateTimeEntryRequest { ProjectId = project!.Id, Hours = 5, Description = "Dev", Date = DateTime.UtcNow };
-        await _client.PostAsJsonAsync("/api/timeentries", timeReq);
+        var timeResp = await _client.PostAsJsonAsync("/api/timeentries", timeReq);
+        await CheckSuccessAsync(timeResp);
 
         var adReq = new CreateAdMetricRequest { ProjectId = project.Id, Spend = 100, Impressions = 1000, Clicks = 50, Conversions = 5, Platform = AdPlatform.Google, Date = DateTime.UtcNow };
-        await _client.PostAsJsonAsync("/api/admetrics", adReq);
+        var adMetricsResp = await _client.PostAsJsonAsync("/api/admetrics", adReq);
+        await CheckSuccessAsync(adMetricsResp);
 
         // Verify across global endpoints
         var timeStatsResp = await _client.GetFromJsonAsync<IEnumerable<TimeEntryResponse>>("/api/timeentries");

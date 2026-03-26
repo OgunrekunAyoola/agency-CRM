@@ -35,6 +35,7 @@ public class AuthController : ControllerBase
         SetTokenCookie("refresh_token", refreshToken!);
         SetTokenCookie("access_token", accessToken!);
 
+        response.AccessToken = accessToken!;
         return Ok(response);
     }
 
@@ -51,6 +52,7 @@ public class AuthController : ControllerBase
         SetTokenCookie("refresh_token", newRefreshToken!);
         SetTokenCookie("access_token", accessToken!);
 
+        response.AccessToken = accessToken!;
         return Ok(response);
     }
 

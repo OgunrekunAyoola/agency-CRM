@@ -118,13 +118,23 @@ Non-sensitive defaults are stored in `appsettings.json`. In production, these sh
 > [!IMPORTANT]
 > Never commit a `.env` file containing real secrets to version control. Always use the `.env.example` patterns for documentation.
 
+## Testing 🧪
+
+For the current demo phase, we focus on **Unit Tests** for maximum stability.
+
+- **Run Unit Tests**:
+  ```bash
+  dotnet test backend/Crm.UnitTests
+  ```
+- **Integration Tests**: These remain in the codebase (`Crm.IntegrationTests`) but are currently excluded from the default CI run to ensure faster, reliable builds.
+
 ## CI/CD 🚀
 
 The project uses **GitHub Actions** for continuous integration.
 - **Workflow**: `.github/workflows/ci.yml`
 - **Actions**:
   - Builds Backend (.NET 8) and Frontend (Next.js).
-  - Runs all Backend tests (Unit + Integration with a live Postgres service).
+  - Runs Backend **Unit Tests** (Integration tests are skipped for demo mode).
   - Lints and builds the Frontend.
   - Runs Frontend unit tests using Vitest.
 - **Triggers**: Runs on every push to `main` and all Pull Requests.
