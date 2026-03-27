@@ -81,7 +81,7 @@ public class AuthController : ControllerBase
             HttpOnly = true,
             Expires = name == "refresh_token" ? DateTime.UtcNow.AddDays(7) : DateTime.UtcNow.AddMinutes(15),
             Secure = !_env.IsDevelopment(), // Secure cookies in production/staging (requires HTTPS)
-            SameSite = SameSiteMode.Lax, // Changed from Strict to Lax for easier local dev across ports
+            SameSite = _env.IsDevelopment() ? SameSiteMode.Lax : SameSiteMode.None, // 'None' is required for cross-domain cookies in production
             Path = "/" // Explicitly set path to root so all API endpoints can receive the cookie
         };
         Response.Cookies.Append(name, token, cookieOptions);
