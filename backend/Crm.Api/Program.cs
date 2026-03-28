@@ -11,11 +11,11 @@ using Hangfire;
 using Hangfire.PostgreSql;
 using Crm.Infrastructure.BackgroundJobs;
 using Serilog;
-using Crm.Api.Middleware;
-using Crm.Infrastructure.Monitoring;
-
 using System.Diagnostics;
 using System.Linq;
+using Microsoft.AspNetCore.HttpOverrides;
+
+namespace Crm.Api;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -139,6 +139,12 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
+// Configure Forwarded Headers for Railway Proxy
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+});
+
 // Seed Database (Always runs if database is empty, even in Production)
 try 
 {
@@ -231,6 +237,14 @@ if (!string.IsNullOrEmpty(connectionString))
             config["RemindersInterval"] ?? Cron.Daily());
     }
 }
+
+app.MapGet("/", () => Results.Ok(new 
+{ 
+    message = "Agency CRM API is running", 
+    status = "healthy",
+    documentation = "/swagger",
+    timestamp = DateTime.UtcNow 
+}));
 
 app.MapControllers();
 
