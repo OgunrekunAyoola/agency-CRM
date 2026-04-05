@@ -15,7 +15,7 @@ public class AutomationService : IAutomationService
     private readonly IGenericRepository<Invoice> _invoiceRepository;
     private readonly IGenericRepository<Lead> _leadRepository;
     private readonly IGenericRepository<Client> _clientRepository;
-    private readonly AppDbContext _context;
+    private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<AutomationService> _logger;
     private readonly ICurrentUserContext _userContext;
     private readonly ISlackService _slackService;
@@ -31,7 +31,7 @@ public class AutomationService : IAutomationService
         IGenericRepository<Invoice> invoiceRepository,
         IGenericRepository<Lead> leadRepository,
         IGenericRepository<Client> clientRepository,
-        AppDbContext context,
+        IUnitOfWork unitOfWork,
         ILogger<AutomationService> logger,
         ICurrentUserContext userContext,
         ISlackService slackService,
@@ -46,7 +46,7 @@ public class AutomationService : IAutomationService
         _invoiceRepository = invoiceRepository;
         _leadRepository = leadRepository;
         _clientRepository = clientRepository;
-        _context = context;
+        _unitOfWork = unitOfWork;
         _logger = logger;
         _userContext = userContext;
         _slackService = slackService;
@@ -58,7 +58,7 @@ public class AutomationService : IAutomationService
     {
         _logger.LogInformation("Starting automation for accepted offer {OfferId}", offerId);
 
-        using var transaction = await _context.Database.BeginTransactionAsync();
+        await _unitOfWork.BeginTransactionAsync();
         try
         {
             var offer = await _offerRepository.AsQueryable()
@@ -197,15 +197,14 @@ public class AutomationService : IAutomationService
                 }
             }
 
-            await _context.SaveChangesAsync();
-            await transaction.CommitAsync();
+            await _unitOfWork.CommitAsync();
 
             await _slackService.SendNotificationAsync($"🚀 Offer Accepted: {offer.Title}. Project and Contract successfully created.");
             _logger.LogInformation("Automation completed for Offer {OfferId}. Created Project {ProjectId} with {TaskCount} tasks.", offerId, project.Id, automatedTasksCount);
         }
         catch (Exception ex)
         {
-            await transaction.RollbackAsync();
+            await _unitOfWork.RollbackAsync();
             _logger.LogError(ex, "Error processing accepted offer {OfferId}. Transaction rolled back.", offerId);
             throw;
         }

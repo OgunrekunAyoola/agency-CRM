@@ -4,9 +4,10 @@ using Crm.Application.Interfaces;
 
 namespace Crm.Infrastructure.Data;
 
-public class AppDbContext : DbContext
+public class AppDbContext : DbContext, IUnitOfWork
 {
     private readonly ICurrentUserContext _userContext;
+    private Microsoft.EntityFrameworkCore.Storage.IDbContextTransaction? _currentTransaction;
 
     public AppDbContext(DbContextOptions<AppDbContext> options, ICurrentUserContext userContext)
         : base(options)
@@ -126,6 +127,50 @@ public class AppDbContext : DbContext
     {
         modelBuilder.Entity<T>().HasQueryFilter(e => 
             _userContext.TenantId.HasValue && e.TenantId == _userContext.TenantId.Value);
+    }
+
+    public async Task BeginTransactionAsync()
+    {
+        if (_currentTransaction != null) return;
+        _currentTransaction = await Database.BeginTransactionAsync();
+    }
+
+    public async Task CommitAsync()
+    {
+        try
+        {
+            await SaveChangesAsync();
+            if (_currentTransaction != null) await _currentTransaction.CommitAsync();
+        }
+        catch
+        {
+            await RollbackAsync();
+            throw;
+        }
+        finally
+        {
+            if (_currentTransaction != null)
+            {
+                _currentTransaction.Dispose();
+                _currentTransaction = null;
+            }
+        }
+    }
+
+    public async Task RollbackAsync()
+    {
+        try
+        {
+            if (_currentTransaction != null) await _currentTransaction.RollbackAsync();
+        }
+        finally
+        {
+            if (_currentTransaction != null)
+            {
+                _currentTransaction.Dispose();
+                _currentTransaction = null;
+            }
+        }
     }
 
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
