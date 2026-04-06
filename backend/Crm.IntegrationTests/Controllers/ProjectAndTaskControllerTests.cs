@@ -11,7 +11,7 @@ namespace Crm.IntegrationTests.Controllers;
 
 public class ProjectsControllerTests : BaseIntegrationTest
 {
-    public ProjectsControllerTests(WebApplicationFactory<Program> factory) : base(factory) { }
+    public ProjectsControllerTests(CrmWebApplicationFactory factory) : base(factory) { }
 
     [Fact]
     public async Task GetProjects_Unauthorized_Returns401()
@@ -48,7 +48,7 @@ public class ProjectsControllerTests : BaseIntegrationTest
 
 public class TasksControllerTests : BaseIntegrationTest
 {
-    public TasksControllerTests(WebApplicationFactory<Program> factory) : base(factory) { }
+    public TasksControllerTests(CrmWebApplicationFactory factory) : base(factory) { }
 
     [Fact]
     public async Task CreateTask_ProjectManager_CreatesAndReturnsTask()

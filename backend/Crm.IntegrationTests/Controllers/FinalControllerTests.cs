@@ -12,7 +12,7 @@ namespace Crm.IntegrationTests.Controllers;
 
 public class ContractPortalControllerTests : BaseIntegrationTest
 {
-    public ContractPortalControllerTests(WebApplicationFactory<Program> factory) : base(factory) { }
+    public ContractPortalControllerTests(CrmWebApplicationFactory factory) : base(factory) { }
 
     [Fact]
     public async Task GetContractByToken_ValidToken_ReturnsContract()
@@ -31,17 +31,17 @@ public class ContractPortalControllerTests : BaseIntegrationTest
         var contract = await genResp.Content.ReadFromJsonAsync<ContractResponse>();
 
         // 2. Act: Use portal endpoint with token
-        var portalToken = contract!.PortalToken; // Assuming this is returned
+        var portalToken = contract!.Token; // Assuming this is returned
         var response = await _client.GetAsync($"/api/portal/contracts/{portalToken}");
 
         // 3. Assert
-        response.StatusCode.Should().Be(HttpStatusCode.Ok);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
     }
 }
 
 public class ProjectAdAccountsControllerTests : BaseIntegrationTest
 {
-    public ProjectAdAccountsControllerTests(WebApplicationFactory<Program> factory) : base(factory) { }
+    public ProjectAdAccountsControllerTests(CrmWebApplicationFactory factory) : base(factory) { }
 
     [Fact]
     public async Task GetAll_Authorized_ReturnsList()
@@ -53,19 +53,19 @@ public class ProjectAdAccountsControllerTests : BaseIntegrationTest
         var response = await _client.GetAsync("/api/projectadaccounts");
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.Ok);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
     }
 }
 
 public class HealthControllerTests : BaseIntegrationTest
 {
-    public HealthControllerTests(WebApplicationFactory<Program> factory) : base(factory) { }
+    public HealthControllerTests(CrmWebApplicationFactory factory) : base(factory) { }
 
     [Fact]
     public async Task Ping_ReturnsPong()
     {
         var response = await _client.GetAsync("/api/ping");
-        response.StatusCode.Should().Be(HttpStatusCode.Ok);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
         var content = await response.Content.ReadAsStringAsync();
         content.Should().Be("pong");
     }
@@ -74,6 +74,6 @@ public class HealthControllerTests : BaseIntegrationTest
     public async Task Health_ReturnsHealthy()
     {
         var response = await _client.GetAsync("/api/health");
-        response.StatusCode.Should().Be(HttpStatusCode.Ok);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
     }
 }

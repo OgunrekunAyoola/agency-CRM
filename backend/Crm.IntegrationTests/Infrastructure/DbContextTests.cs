@@ -10,11 +10,11 @@ using Moq;
 
 namespace Crm.IntegrationTests.Infrastructure;
 
-public class DbContextTests : IClassFixture<WebApplicationFactory<Program>>
+public class DbContextTests : IClassFixture<CrmWebApplicationFactory>
 {
-    private readonly WebApplicationFactory<Program> _factory;
+    private readonly CrmWebApplicationFactory _factory;
 
-    public DbContextTests(WebApplicationFactory<Program> factory)
+    public DbContextTests(CrmWebApplicationFactory factory)
     {
         _factory = factory;
     }

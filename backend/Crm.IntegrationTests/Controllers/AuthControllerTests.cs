@@ -9,7 +9,7 @@ namespace Crm.IntegrationTests.Controllers;
 
 public class AuthControllerTests : BaseIntegrationTest
 {
-    public AuthControllerTests(WebApplicationFactory<Program> factory) : base(factory) { }
+    public AuthControllerTests(CrmWebApplicationFactory factory) : base(factory) { }
 
     [Fact]
     public async Task Login_ValidCredentials_Returns200AndSetsCookies()
@@ -25,7 +25,7 @@ public class AuthControllerTests : BaseIntegrationTest
         var response = await _client.PostAsJsonAsync("/api/auth/login", request);
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.Ok);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
         var result = await response.Content.ReadFromJsonAsync<AuthResponse>();
         result.Should().NotBeNull();
         result!.AccessToken.Should().NotBeNullOrEmpty();
@@ -64,7 +64,7 @@ public class AuthControllerTests : BaseIntegrationTest
         var response = await _client.PostAsync("/api/auth/logout", null);
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.Ok);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
         var cookies = response.Headers.GetValues("Set-Cookie").ToList();
         cookies.Should().Contain(c => c.Contains("access_token=;"));
     }

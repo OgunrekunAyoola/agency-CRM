@@ -15,6 +15,8 @@ public class AppDbContext : DbContext, IUnitOfWork
         _userContext = userContext;
     }
 
+    public Guid? CurrentTenantId => _userContext.TenantId;
+
     public DbSet<Tenant> Tenants => Set<Tenant>();
     public DbSet<User> Users => Set<User>();
     public DbSet<Client> Clients => Set<Client>();
@@ -125,8 +127,7 @@ public class AppDbContext : DbContext, IUnitOfWork
 
     private void ApplyTenantFilter<T>(ModelBuilder modelBuilder) where T : class, ITenantedEntity
     {
-        modelBuilder.Entity<T>().HasQueryFilter(e => 
-            _userContext.TenantId.HasValue && e.TenantId == _userContext.TenantId.Value);
+        modelBuilder.Entity<T>().HasQueryFilter(e => e.TenantId == CurrentTenantId);
     }
 
     public async Task BeginTransactionAsync()

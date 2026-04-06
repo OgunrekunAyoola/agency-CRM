@@ -9,7 +9,7 @@ namespace Crm.IntegrationTests.Controllers;
 
 public class ClientsControllerTests : BaseIntegrationTest
 {
-    public ClientsControllerTests(WebApplicationFactory<Program> factory) : base(factory) { }
+    public ClientsControllerTests(CrmWebApplicationFactory factory) : base(factory) { }
 
     [Fact]
     public async Task GetClients_Unauthorized_Returns401()

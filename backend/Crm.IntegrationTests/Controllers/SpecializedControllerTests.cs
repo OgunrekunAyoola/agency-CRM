@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Crm.Application.DTOs.TimeEntries;
 using Crm.Application.DTOs.TimeTracking;
 using Crm.Application.DTOs.Projects;
+using Crm.Application.DTOs.Tasks;
 using Crm.Application.DTOs.Clients;
 using FluentAssertions;
 using System.Net;
@@ -12,7 +13,7 @@ namespace Crm.IntegrationTests.Controllers;
 
 public class TimeTrackingControllerTests : BaseIntegrationTest
 {
-    public TimeTrackingControllerTests(WebApplicationFactory<Program> factory) : base(factory) { }
+    public TimeTrackingControllerTests(CrmWebApplicationFactory factory) : base(factory) { }
 
     [Fact]
     public async Task LogTime_ValidRequest_CreatesEntry()
@@ -43,7 +44,7 @@ public class TimeTrackingControllerTests : BaseIntegrationTest
         var response = await _client.PostAsJsonAsync("/api/timetracking", request);
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.Ok);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
         var result = await response.Content.ReadFromJsonAsync<Crm.Application.DTOs.TimeTracking.TimeEntryDto>();
         result.Should().NotBeNull();
         result!.Hours.Should().Be(4);
@@ -52,7 +53,7 @@ public class TimeTrackingControllerTests : BaseIntegrationTest
 
 public class TimeEntriesControllerTests : BaseIntegrationTest
 {
-    public TimeEntriesControllerTests(WebApplicationFactory<Program> factory) : base(factory) { }
+    public TimeEntriesControllerTests(CrmWebApplicationFactory factory) : base(factory) { }
 
     [Fact]
     public async Task GetAllEntries_Authorized_ReturnsList()
@@ -64,7 +65,7 @@ public class TimeEntriesControllerTests : BaseIntegrationTest
         var response = await _client.GetAsync("/api/timeentries");
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.Ok);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
         var result = await response.Content.ReadFromJsonAsync<IEnumerable<TimeEntryResponse>>();
         result.Should().NotBeNull();
     }

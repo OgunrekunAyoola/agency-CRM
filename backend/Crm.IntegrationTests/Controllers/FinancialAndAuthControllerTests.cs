@@ -10,7 +10,7 @@ namespace Crm.IntegrationTests;
 
 public class AuthControllerTests : BaseIntegrationTest
 {
-    public AuthControllerTests(WebApplicationFactory<Program> factory) : base(factory) { }
+    public AuthControllerTests(CrmWebApplicationFactory factory) : base(factory) { }
 
     [Fact]
     public async Task Login_ValidCredentials_ReturnsTokensAndCookies()
@@ -49,7 +49,7 @@ public class AuthControllerTests : BaseIntegrationTest
 
 public class InvoicesControllerTests : BaseIntegrationTest
 {
-    public InvoicesControllerTests(WebApplicationFactory<Program> factory) : base(factory) { }
+    public InvoicesControllerTests(CrmWebApplicationFactory factory) : base(factory) { }
 
     [Fact]
     public async Task CreateInvoice_Authorized_SavesToDb()
@@ -87,7 +87,7 @@ public class InvoicesControllerTests : BaseIntegrationTest
         { 
             Amount = 100, 
             PaymentDate = DateTime.UtcNow, 
-            Method = "CreditCard" 
+            Method = PaymentMethod.CreditCard 
         };
 
         // Act

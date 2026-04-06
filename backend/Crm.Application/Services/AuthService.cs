@@ -113,10 +113,10 @@ public class AuthService
 
         var claims = new List<Claim>
         {
-            new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-            new Claim(JwtRegisteredClaimNames.Email, user.Email),
+            new Claim("sub", user.Id.ToString()),
+            new Claim("email", user.Email),
             new Claim("tenant_id", user.TenantId.ToString()),
-            new Claim(ClaimTypes.Role, user.Role.ToString())
+            new Claim("role", user.Role.ToString())
         };
 
         var token = new JwtSecurityToken(

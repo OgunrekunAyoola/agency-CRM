@@ -11,7 +11,7 @@ namespace Crm.IntegrationTests.Controllers;
 
 public class AdMetricsControllerTests : BaseIntegrationTest
 {
-    public AdMetricsControllerTests(WebApplicationFactory<Program> factory) : base(factory) { }
+    public AdMetricsControllerTests(CrmWebApplicationFactory factory) : base(factory) { }
 
     [Fact]
     public async Task GetProjectAnalytics_ValidId_ReturnsAnalytics()
@@ -30,7 +30,7 @@ public class AdMetricsControllerTests : BaseIntegrationTest
         var response = await _client.GetAsync($"/api/admetrics/project/{proj!.Id}/analytics");
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.Ok);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
         var result = await response.Content.ReadFromJsonAsync<AdMetricAnalyticsResponse>();
         result.Should().NotBeNull();
     }
@@ -38,7 +38,7 @@ public class AdMetricsControllerTests : BaseIntegrationTest
 
 public class AutomationControllerTests : BaseIntegrationTest
 {
-    public AutomationControllerTests(WebApplicationFactory<Program> factory) : base(factory) { }
+    public AutomationControllerTests(CrmWebApplicationFactory factory) : base(factory) { }
 
     [Fact]
     public async Task TriggerAutomation_Admin_ReturnsOk()
@@ -56,18 +56,18 @@ public class AutomationControllerTests : BaseIntegrationTest
 
 public class WebhooksControllerTests : BaseIntegrationTest
 {
-    public WebhooksControllerTests(WebApplicationFactory<Program> factory) : base(factory) { }
+    public WebhooksControllerTests(CrmWebApplicationFactory factory) : base(factory) { }
 
     [Fact]
     public async Task StripeWebhook_ValidEvent_ReturnsOk()
     {
         // Arrange
-        var request = new { type = "payment_intent.succeeded", data = new { object = new { amount = 5000 } } };
+        var request = new { type = "payment_intent.succeeded", data = new { @object = new { amount = 5000 } } };
 
         // Act
         var response = await _client.PostAsJsonAsync("/api/webhooks/stripe", request);
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.Ok);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
     }
 }

@@ -12,7 +12,7 @@ namespace Crm.IntegrationTests.Controllers;
 
 public class InvoicesControllerTests : BaseIntegrationTest
 {
-    public InvoicesControllerTests(WebApplicationFactory<Program> factory) : base(factory) { }
+    public InvoicesControllerTests(CrmWebApplicationFactory factory) : base(factory) { }
 
     [Fact]
     public async Task GetInvoices_Unauthorized_Returns401()
@@ -51,14 +51,14 @@ public class InvoicesControllerTests : BaseIntegrationTest
         { 
             Amount = 500, 
             PaymentDate = DateTime.UtcNow, 
-            Method = 1 
+            Method = (PaymentMethod)1 
         };
 
         // Act
         var response = await _client.PostAsJsonAsync($"/api/invoices/{invoice!.Id}/payments", payReq);
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.Ok);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
         var result = await response.Content.ReadFromJsonAsync<InvoiceResponse>();
         result!.Status.Should().Be(InvoiceStatus.Paid);
         result.PaidAmount.Should().Be(500);
@@ -82,7 +82,7 @@ public class InvoicesControllerTests : BaseIntegrationTest
         var response = await _client.PostAsync($"/api/invoices/generate/project/{proj!.Id}", null);
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.Ok);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
         var result = await response.Content.ReadFromJsonAsync<InvoiceResponse>();
         result.Should().NotBeNull();
         result!.ProjectId.Should().Be(proj.Id);

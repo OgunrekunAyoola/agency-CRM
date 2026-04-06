@@ -5,21 +5,21 @@ using Crm.Application.DTOs.Auth;
 using Crm.Infrastructure.Data;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
-using Respawn;
-using Respawn.Graph;
+using Microsoft.Data.Sqlite;
+using System.Data.Common;
+using Microsoft.AspNetCore.Hosting;
+using Hangfire;
+using Hangfire.MemoryStorage;
 using System.Net.Http.Headers;
 
 namespace Crm.IntegrationTests;
 
-public abstract class BaseIntegrationTest : IClassFixture<WebApplicationFactory<Program>>, IAsyncLifetime
+public abstract class BaseIntegrationTest : IClassFixture<CrmWebApplicationFactory>, IAsyncLifetime
 {
     protected readonly HttpClient _client;
-    protected readonly WebApplicationFactory<Program> _factory;
-    private Respawner? _respawner;
-    private static bool _dbInitialized = false;
-    private static readonly object _dbLock = new();
+    protected readonly CrmWebApplicationFactory _factory;
 
-    protected BaseIntegrationTest(WebApplicationFactory<Program> factory)
+    protected BaseIntegrationTest(CrmWebApplicationFactory factory)
     {
         _factory = factory;
         _client = factory.CreateClient();
@@ -30,33 +30,11 @@ public abstract class BaseIntegrationTest : IClassFixture<WebApplicationFactory<
         using var scope = _factory.Services.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
         
-        lock (_dbLock)
-        {
-            if (!_dbInitialized)
-            {
-                context.Database.Migrate();
-                _dbInitialized = true;
-            }
-        }
+        // Reset DB for each test to ensure isolation
+        await context.Database.EnsureDeletedAsync();
+        await context.Database.EnsureCreatedAsync();
 
-        await DbInitializer.SeedAsync(_factory.Services);
-
-        var connection = context.Database.GetDbConnection();
-        await connection.OpenAsync();
-
-        _respawner ??= await Respawner.CreateAsync(connection, new RespawnerOptions
-        {
-            DbAdapter = DbAdapter.Postgres,
-            SchemasToInclude = new[] { "public" },
-            TablesToIgnore = new Table[] 
-            { 
-                "Tenants", 
-                "Users",
-                "__EFMigrationsHistory"
-            }
-        });
-
-        await _respawner.ResetAsync(connection);
+        await DbInitializer.SeedAsync(scope.ServiceProvider);
     }
 
     public Task DisposeAsync() => Task.CompletedTask;
@@ -76,5 +54,43 @@ public abstract class BaseIntegrationTest : IClassFixture<WebApplicationFactory<
             var content = await response.Content.ReadAsStringAsync();
             throw new Exception($"[TEST FAILURE] Status: {response.StatusCode}, Body: {content}");
         }
+    }
+}
+
+public class CrmWebApplicationFactory : WebApplicationFactory<Program>
+{
+    private SqliteConnection? _connection;
+
+    protected override void ConfigureWebHost(IWebHostBuilder builder)
+    {
+        builder.ConfigureServices(services =>
+        {
+            // Remove existing DB registration
+            var descriptor = services.SingleOrDefault(d => d.ServiceType == typeof(DbContextOptions<AppDbContext>));
+            if (descriptor != null) services.Remove(descriptor);
+
+            // Create and open a shared connection to keep the in-memory database alive
+            _connection = new SqliteConnection("DataSource=:memory:");
+            _connection.Open();
+
+            services.AddDbContext<AppDbContext>(options =>
+            {
+                options.UseSqlite(_connection);
+            });
+
+            // Use Memory Storage for Hangfire in tests
+            var hangfireDescriptor = services.SingleOrDefault(d => d.ServiceType == typeof(JobStorage));
+            if (hangfireDescriptor != null) services.Remove(hangfireDescriptor);
+            services.AddHangfire(config => config.UseMemoryStorage());
+        });
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            _connection?.Dispose();
+        }
+        base.Dispose(disposing);
     }
 }

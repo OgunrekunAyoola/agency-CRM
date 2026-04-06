@@ -4,12 +4,13 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Crm.Application.DTOs.Leads;
 using FluentAssertions;
 using System.Net;
+using Crm.Domain.Entities;
 
 namespace Crm.IntegrationTests.Controllers;
 
 public class LeadsControllerTests : BaseIntegrationTest
 {
-    public LeadsControllerTests(WebApplicationFactory<Program> factory) : base(factory) { }
+    public LeadsControllerTests(CrmWebApplicationFactory factory) : base(factory) { }
 
     [Fact]
     public async Task GetLeads_Unauthorized_Returns401()
@@ -55,7 +56,7 @@ public class LeadsControllerTests : BaseIntegrationTest
         var response = await _client.PatchAsJsonAsync($"/api/leads/{lead!.Id}/status", updateRequest);
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.Ok);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
         var result = await response.Content.ReadFromJsonAsync<LeadResponse>();
         result!.Status.Should().Be(LeadStatus.Contacted);
     }
