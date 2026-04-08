@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace Crm.Infrastructure.Data.Migrations
+namespace Crm.Infrastructure.Migrations
 {
     /// <inheritdoc />
     public partial class AddProjectAdAccounts : Migration
