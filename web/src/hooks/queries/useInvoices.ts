@@ -93,6 +93,8 @@ export const useInvoices = () => {
   return {
     invoices: invoicesQuery.data ?? [],
     isLoading: invoicesQuery.isLoading,
+    isError: invoicesQuery.isError,
+    refetch: invoicesQuery.refetch,
     error: invoicesQuery.error,
     recordPayment: recordPaymentMutation.mutateAsync,
     isRecordingPayment: recordPaymentMutation.isPending,

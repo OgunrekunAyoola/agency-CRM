@@ -1,16 +1,20 @@
 'use client';
 
 import { useState } from 'react';
-import { useLeads, LeadStatus, LeadSource, ServiceType, PipelineStage } from '@/hooks/queries/useLeads';
+import { useLeads, LeadStatus, LeadSource, ServiceType } from '@/hooks/queries/useLeads';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/Table';
 import { Container, Section } from '@/components/ui/LayoutPrimitives';
 import { Modal } from '@/components/ui/Modal';
+import { ProtectedRoute } from '@/components/ui/ProtectedRoute';
+import { PageError } from '@/components/ui/PageError';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 export default function LeadsPage() {
-  const { leads, isLoading, createLead, isCreating, updateStatus, isUpdatingStatus } = useLeads();
+  const { leads, isLoading, isError, refetch, createLead, isCreating, updateStatus, isUpdatingStatus } = useLeads();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<'title' | 'date' | 'value'>('date');
   const [newLead, setNewLead] = useState({ 
     title: '', 
@@ -26,22 +30,13 @@ export default function LeadsPage() {
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
+    setFormError(null);
     try {
       await createLead(newLead);
-      setNewLead({ 
-        title: '', 
-        description: '',
-        contactName: '',
-        email: '',
-        phone: '',
-        companyName: '',
-        source: LeadSource.Manual,
-        interest: ServiceType.Other,
-        budgetRange: ''
-      });
+      setNewLead({ title: '', description: '', contactName: '', email: '', phone: '', companyName: '', source: LeadSource.Manual, interest: ServiceType.Other, budgetRange: '' });
       setIsModalOpen(false);
-    } catch (err) {
-      console.error(err);
+    } catch (err: any) {
+      setFormError(err?.message || 'Failed to create lead. Please try again.');
     }
   };
 
@@ -52,7 +47,8 @@ export default function LeadsPage() {
   });
 
   return (
-    <Container>
+    <ProtectedRoute>
+      <Container>
       <Section className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Leads</h1>
@@ -73,7 +69,13 @@ export default function LeadsPage() {
       </Section>
 
       <Section>
-        {isLoading ? (
+        {isError ? (
+          <PageError
+            title="Could not load leads"
+            message="There was a problem fetching your leads pipeline. Please try again."
+            onRetry={refetch}
+          />
+        ) : isLoading ? (
           <div className="space-y-4">
             {[1, 2, 3, 4].map((i) => (
               <div key={i} className="h-12 w-full bg-muted animate-pulse rounded" />
@@ -145,9 +147,12 @@ export default function LeadsPage() {
               ))}
               {leads.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center text-muted-foreground py-12">
-                    <div className="text-lg font-medium">No leads found</div>
-                    <p className="text-sm">Start by adding your first sales opportunity.</p>
+                  <TableCell colSpan={7}>
+                    <EmptyState
+                      title="No leads yet"
+                      description="Add your first sales opportunity to start tracking your pipeline."
+                      action={{ label: 'Add Lead', onClick: () => setIsModalOpen(true) }}
+                    />
                   </TableCell>
                 </TableRow>
               )}
@@ -240,8 +245,11 @@ export default function LeadsPage() {
             onChange={(e) => setNewLead({ ...newLead, description: e.target.value })}
           />
 
+          {formError && (
+            <p className="text-sm text-amber-600 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">{formError}</p>
+          )}
           <div className="flex justify-end gap-3 mt-6 pt-4 border-t">
-            <Button variant="outline" type="button" onClick={() => setIsModalOpen(false)}>
+            <Button variant="outline" type="button" onClick={() => { setIsModalOpen(false); setFormError(null); }}>
               Cancel
             </Button>
             <Button type="submit" isLoading={isCreating}>Create Lead</Button>
@@ -249,5 +257,6 @@ export default function LeadsPage() {
         </form>
       </Modal>
     </Container>
+  </ProtectedRoute>
   );
 }

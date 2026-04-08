@@ -5,13 +5,16 @@ import { useInvoices, InvoiceStatus } from '@/hooks/queries/useInvoices';
 import { useAdMetrics } from '@/hooks/queries/useAdMetrics';
 import { Card, CardContent, CardHeader, CardTitle, Container, Section } from '@/components/ui/LayoutPrimitives';
 import { ROIAnalytics } from './components/ROIAnalytics';
+import { ProtectedRoute } from '@/components/ui/ProtectedRoute';
+import { PageError } from '@/components/ui/PageError';
 
 export default function DashboardPage() {
-  const { data: stats, isLoading: statsLoading } = useStats();
-  const { invoices, isLoading: invoicesLoading } = useInvoices();
-  const { metrics, isLoading: metricsLoading } = useAdMetrics(); // Note: Without projectId, this might need a global endpoint or we just sum all
+  const { data: stats, isLoading: statsLoading, isError: statsError, refetch: refetchStats } = useStats();
+  const { invoices, isLoading: invoicesLoading, isError: invoicesError } = useInvoices();
+  const { metrics, isLoading: metricsLoading } = useAdMetrics();
 
   const isLoading = statsLoading || invoicesLoading || metricsLoading;
+  const isError = statsError || invoicesError;
 
   const totalRevenue = invoices
     .filter(i => i.status === InvoiceStatus.Paid)
@@ -28,23 +31,40 @@ export default function DashboardPage() {
     { title: 'Pending Offers', value: stats?.offers ?? 0, color: 'text-amber-600', link: '/offers' },
   ];
 
+  if (isError) {
+    return (
+      <ProtectedRoute>
+        <Container>
+          <PageError
+            title="Dashboard failed to load"
+            message="We couldn't retrieve your agency stats. Please check your connection or try again."
+            onRetry={() => refetchStats()}
+          />
+        </Container>
+      </ProtectedRoute>
+    );
+  }
+
   if (isLoading) {
     return (
-      <Container>
-        <Section title="Dashboard Overview">
-          <div className="grid gap-6 md:grid-cols-3">
-            {[1, 2, 3, 4, 5, 6].map((i) => (
-              <Card key={i} className="animate-pulse bg-muted h-32 text-transparent">
-                Loading...
-              </Card>
-            ))}
-          </div>
-        </Section>
-      </Container>
+      <ProtectedRoute>
+        <Container>
+          <Section title="Dashboard Overview">
+            <div className="grid gap-6 md:grid-cols-3">
+              {[1, 2, 3, 4, 5, 6].map((i) => (
+                <Card key={i} className="animate-pulse bg-muted h-32 text-transparent">
+                  Loading...
+                </Card>
+              ))}
+            </div>
+          </Section>
+        </Container>
+      </ProtectedRoute>
     );
   }
 
   return (
+    <ProtectedRoute>
     <Container>
       <Section title="Agency Performance">
         <div className="grid gap-6 md:grid-cols-4 lg:grid-cols-4">
@@ -107,5 +127,6 @@ export default function DashboardPage() {
          </Card>
       </Section>
     </Container>
+  </ProtectedRoute>
   );
 }

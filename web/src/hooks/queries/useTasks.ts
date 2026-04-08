@@ -32,6 +32,8 @@ export const useTasks = () => {
   return {
     tasks: tasksQuery.data ?? [],
     isLoading: tasksQuery.isLoading,
+    isError: tasksQuery.isError,
+    refetch: tasksQuery.refetch,
     error: tasksQuery.error,
     createTask: createTaskMutation.mutateAsync,
     isCreating: createTaskMutation.isPending,

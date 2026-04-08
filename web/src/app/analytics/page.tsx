@@ -1,4 +1,6 @@
 'use client';
+import { ProtectedRoute } from '@/components/ui/ProtectedRoute';
+import { PageError } from '@/components/ui/PageError';
 
 import { Container, Section, Card, CardHeader, CardTitle, CardContent } from '@/components/ui/LayoutPrimitives';
 import { ROIAnalytics } from '../dashboard/components/ROIAnalytics';
@@ -10,7 +12,8 @@ export default function AnalyticsPage() {
   const { projects } = useProjects();
 
   return (
-    <Container>
+    <ProtectedRoute>
+      <Container>
       <Section className="border-b pb-8">
         <h1 className="text-3xl font-bold">Agency Performance Intelligence</h1>
         <p className="text-muted-foreground mt-2">Real-time ROI and Advertising Metrics across all managed accounts.</p>
@@ -82,5 +85,6 @@ export default function AnalyticsPage() {
          </div>
       </Section>
     </Container>
+    </ProtectedRoute>
   );
 }

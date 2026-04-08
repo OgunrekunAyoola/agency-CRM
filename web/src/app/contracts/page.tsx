@@ -1,4 +1,6 @@
 'use client';
+import { ProtectedRoute } from '@/components/ui/ProtectedRoute';
+import { PageError } from '@/components/ui/PageError';
 
 import { useState } from 'react';
 import { useContracts, ContractStatus, SuccessFeeType } from '@/hooks/queries/useContracts';
@@ -110,7 +112,8 @@ export default function ContractsPage() {
   const activeContracts = contracts.filter(c => c.status !== ContractStatus.Archived);
 
   return (
-    <Container>
+    <ProtectedRoute>
+      <Container>
       <Section className="flex items-center justify-between">
         <h1 className="text-3xl font-bold tracking-tight">Contracts & Billing</h1>
         <Button onClick={() => setIsModalOpen(true)}>New Contract</Button>
@@ -278,5 +281,6 @@ export default function ContractsPage() {
         </form>
       </Modal>
     </Container>
+    </ProtectedRoute>
   );
 }

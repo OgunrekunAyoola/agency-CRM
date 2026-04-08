@@ -1,16 +1,20 @@
 'use client';
 
 import { useState } from 'react';
-import { useClients, PriorityTier, Client } from '@/hooks/queries/useClients';
+import { useClients, PriorityTier } from '@/hooks/queries/useClients';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/Table';
 import { Container, Section } from '@/components/ui/LayoutPrimitives';
 import { Modal } from '@/components/ui/Modal';
+import { ProtectedRoute } from '@/components/ui/ProtectedRoute';
+import { PageError } from '@/components/ui/PageError';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 export default function ClientsPage() {
-  const { clients, isLoading, createClient, isCreating } = useClients();
+  const { clients, isLoading, isError, refetch, createClient, isCreating } = useClients();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<'name' | 'priority' | 'date'>('date');
   const [newClient, setNewClient] = useState({ 
     name: '', 
@@ -23,19 +27,13 @@ export default function ClientsPage() {
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
+    setFormError(null);
     try {
       await createClient(newClient);
-      setNewClient({ 
-        name: '', 
-        legalName: '',
-        vatNumber: '',
-        businessAddress: '',
-        industry: '',
-        priority: PriorityTier.Tier3
-      });
+      setNewClient({ name: '', legalName: '', vatNumber: '', businessAddress: '', industry: '', priority: PriorityTier.Tier3 });
       setIsModalOpen(false);
-    } catch (err) {
-      console.error(err);
+    } catch (err: any) {
+      setFormError(err?.message || 'Failed to create client. Please try again.');
     }
   };
 
@@ -46,7 +44,8 @@ export default function ClientsPage() {
   });
 
   return (
-    <Container>
+    <ProtectedRoute>
+      <Container>
       <Section className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Clients</h1>
@@ -67,7 +66,13 @@ export default function ClientsPage() {
       </Section>
 
       <Section>
-        {isLoading ? (
+        {isError ? (
+          <PageError
+            title="Could not load clients"
+            message="There was a problem fetching your client list. Please try again."
+            onRetry={refetch}
+          />
+        ) : isLoading ? (
           <div className="space-y-4">
             {[1, 2, 3].map((i) => (
               <div key={i} className="h-12 w-full bg-muted animate-pulse rounded" />
@@ -113,9 +118,12 @@ export default function ClientsPage() {
               ))}
               {clients.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center text-muted-foreground py-12">
-                    <div className="text-lg font-medium">No clients found</div>
-                    <p className="text-sm">Active leads will appear here once converted.</p>
+                  <TableCell colSpan={5}>
+                    <EmptyState
+                      title="No clients yet"
+                      description="Convert a qualified lead or add a client manually to get started."
+                      action={{ label: 'Add Client', onClick: () => setIsModalOpen(true) }}
+                    />
                   </TableCell>
                 </TableRow>
               )}
@@ -181,8 +189,11 @@ export default function ClientsPage() {
             onChange={(e) => setNewClient({ ...newClient, businessAddress: e.target.value })}
           />
 
+          {formError && (
+            <p className="text-sm text-amber-600 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">{formError}</p>
+          )}
           <div className="flex justify-end gap-3 mt-6 pt-4 border-t">
-            <Button variant="outline" type="button" onClick={() => setIsModalOpen(false)}>
+            <Button variant="outline" type="button" onClick={() => { setIsModalOpen(false); setFormError(null); }}>
               Cancel
             </Button>
             <Button type="submit" isLoading={isCreating}>Create Client</Button>
@@ -190,5 +201,6 @@ export default function ClientsPage() {
         </form>
       </Modal>
     </Container>
+  </ProtectedRoute>
   );
 }

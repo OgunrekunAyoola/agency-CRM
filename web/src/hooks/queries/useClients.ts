@@ -38,6 +38,8 @@ export const useClients = () => {
   return {
     clients: clientsQuery.data ?? [],
     isLoading: clientsQuery.isLoading,
+    isError: clientsQuery.isError,
+    refetch: clientsQuery.refetch,
     error: clientsQuery.error,
     createClient: createClientMutation.mutateAsync,
     isCreating: createClientMutation.isPending,

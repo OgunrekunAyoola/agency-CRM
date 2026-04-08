@@ -1,4 +1,6 @@
 'use client';
+import { ProtectedRoute } from '@/components/ui/ProtectedRoute';
+import { PageError } from '@/components/ui/PageError';
 
 import { useState } from 'react';
 import Link from 'next/link';
@@ -75,7 +77,8 @@ export default function ProjectsPage() {
   ];
 
   return (
-    <Container>
+    <ProtectedRoute>
+      <Container>
       <Section className="flex items-center justify-between">
         <h1 className="text-3xl font-bold tracking-tight">Projects</h1>
         <Button onClick={() => setIsModalOpen(true)}>Add Project</Button>
@@ -184,5 +187,6 @@ export default function ProjectsPage() {
         </form>
       </Modal>
     </Container>
+    </ProtectedRoute>
   );
 }

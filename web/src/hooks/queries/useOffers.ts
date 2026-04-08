@@ -62,6 +62,8 @@ export const useOffers = () => {
   return {
     offers: offersQuery.data ?? [],
     isLoading: offersQuery.isLoading,
+    isError: offersQuery.isError,
+    refetch: offersQuery.refetch,
     error: offersQuery.error,
     createOffer: createOfferMutation.mutateAsync,
     isCreating: createOfferMutation.isPending,

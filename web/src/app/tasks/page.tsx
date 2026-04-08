@@ -1,4 +1,6 @@
 'use client';
+import { ProtectedRoute } from '@/components/ui/ProtectedRoute';
+import { PageError } from '@/components/ui/PageError';
 
 import { useState } from 'react';
 import { useTasks, Task } from '@/hooks/queries/useTasks';
@@ -64,7 +66,8 @@ export default function TasksPage() {
   ];
 
   return (
-    <Container>
+    <ProtectedRoute>
+      <Container>
       <Section className="flex items-center justify-between">
         <div>
             <h1 className="text-3xl font-bold tracking-tight">Project Tasks</h1>
@@ -208,5 +211,6 @@ export default function TasksPage() {
          </form>
       </Modal>
     </Container>
+    </ProtectedRoute>
   );
 }

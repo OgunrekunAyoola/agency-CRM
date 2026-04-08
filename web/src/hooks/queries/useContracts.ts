@@ -76,6 +76,8 @@ export const useContracts = () => {
   return {
     contracts: contractsQuery.data ?? [],
     isLoading: contractsQuery.isLoading,
+    isError: contractsQuery.isError,
+    refetch: contractsQuery.refetch,
     error: contractsQuery.error,
     createContract: createContractMutation.mutateAsync,
     isCreating: createContractMutation.isPending,

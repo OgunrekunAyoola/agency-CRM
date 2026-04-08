@@ -1,4 +1,6 @@
 'use client';
+import { ProtectedRoute } from '@/components/ui/ProtectedRoute';
+import { PageError } from '@/components/ui/PageError';
 
 import { useInvoices, InvoiceStatus } from '@/hooks/queries/useInvoices';
 import { useProjects } from '@/hooks/queries/useProjects';
@@ -78,7 +80,8 @@ export default function InvoicesPage() {
   };
 
   return (
-    <Container>
+    <ProtectedRoute>
+      <Container>
       <Section className="flex items-center justify-between">
         <div>
             <h1 className="text-3xl font-bold tracking-tight">Invoices</h1>
@@ -248,5 +251,6 @@ export default function InvoicesPage() {
           </form>
       </Modal>
     </Container>
+    </ProtectedRoute>
   );
 }

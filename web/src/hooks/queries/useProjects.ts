@@ -29,6 +29,8 @@ export const useProjects = () => {
   return {
     projects: projectsQuery.data ?? [],
     isLoading: projectsQuery.isLoading,
+    isError: projectsQuery.isError,
+    refetch: projectsQuery.refetch,
     error: projectsQuery.error,
     createProject: createProjectMutation.mutateAsync,
     isCreating: createProjectMutation.isPending,

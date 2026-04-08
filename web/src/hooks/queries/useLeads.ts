@@ -84,6 +84,8 @@ export const useLeads = () => {
   return {
     leads: leadsQuery.data ?? [],
     isLoading: leadsQuery.isLoading,
+    isError: leadsQuery.isError,
+    refetch: leadsQuery.refetch,
     error: leadsQuery.error,
     createLead: createLeadMutation.mutateAsync,
     isCreating: createLeadMutation.isPending,

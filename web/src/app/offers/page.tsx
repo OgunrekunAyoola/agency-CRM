@@ -5,6 +5,8 @@ import { useOffers, OfferStatus } from '@/hooks/queries/useOffers';
 import { Button } from '@/components/ui/Button';
 import { Container, Section } from '@/components/ui/LayoutPrimitives';
 import { NewOfferModal } from './components/NewOfferModal';
+import { ProtectedRoute } from '@/components/ui/ProtectedRoute';
+import { PageError } from '@/components/ui/PageError';
 
 const COLUMN_NAMES = {
   [OfferStatus.Draft]: 'Draft',
@@ -14,7 +16,7 @@ const COLUMN_NAMES = {
 };
 
 export default function OffersPage() {
-  const { offers, isLoading, updateStatus, isUpdatingStatus } = useOffers();
+  const { offers, isLoading, isError, refetch, updateStatus, isUpdatingStatus } = useOffers();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleDragStart = (e: React.DragEvent, offerId: string) => {
@@ -107,14 +109,21 @@ export default function OffersPage() {
   };
 
   return (
-    <Container>
-      <Section className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold tracking-tight">Offers Pipeline</h1>
-        <Button onClick={() => setIsModalOpen(true)}>New Offer</Button>
-      </Section>
+    <ProtectedRoute>
+      <Container>
+        <Section className="flex items-center justify-between">
+          <h1 className="text-3xl font-bold tracking-tight">Offers Pipeline</h1>
+          <Button onClick={() => setIsModalOpen(true)}>New Offer</Button>
+        </Section>
 
-      <Section>
-        {isLoading ? (
+        <Section>
+          {isError ? (
+            <PageError
+              title="Could not load offers"
+              message="There was a problem fetching your offers pipeline. Please try again."
+              onRetry={refetch}
+            />
+          ) : isLoading ? (
           <div className="animate-pulse flex gap-4">
             {[1, 2, 3, 4].map(i => <div key={i} className="flex-1 min-w-[250px] bg-muted h-[500px] rounded-lg" />)}
           </div>
@@ -128,10 +137,11 @@ export default function OffersPage() {
         )}
       </Section>
 
-      <NewOfferModal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
+      <NewOfferModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
       />
     </Container>
+  </ProtectedRoute>
   );
 }

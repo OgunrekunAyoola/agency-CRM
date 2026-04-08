@@ -1,4 +1,6 @@
 'use client';
+import { ProtectedRoute } from '@/components/ui/ProtectedRoute';
+import { PageError } from '@/components/ui/PageError';
 
 import { Container, Section } from '@/components/ui/LayoutPrimitives';
 import { Button } from '@/components/ui/Button';
@@ -29,7 +31,8 @@ export default function SettingsPage() {
   };
 
   return (
-    <Container className="pb-20">
+    <ProtectedRoute>
+      <Container className="pb-20">
       <Section className="flex items-center gap-4 mb-8">
         <Link href="/dashboard">
           <Button variant="ghost" size="sm" className="rounded-full h-8 w-8 p-0">
@@ -135,6 +138,7 @@ export default function SettingsPage() {
           </form>
         </div>
       </div>
-    </Container>
+      </Container>
+    </ProtectedRoute>
   );
 }
