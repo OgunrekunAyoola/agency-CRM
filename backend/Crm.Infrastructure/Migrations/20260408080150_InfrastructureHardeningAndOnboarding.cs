@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
@@ -11,6 +11,9 @@ namespace Crm.Infrastructure.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            // Sanitize conflicting MVP data before attempting strict structural schema changes
+            migrationBuilder.Sql("DELETE FROM \"Invoices\";");
+
             migrationBuilder.DropColumn(
                 name: "DigitalSignature",
                 table: "Contracts");
