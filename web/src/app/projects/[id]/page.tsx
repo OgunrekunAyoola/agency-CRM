@@ -26,7 +26,7 @@ export default function ProjectDetailsPage() {
     isLoggingTime
   } = useTimeTracking(projectId);
   const { metrics, createMetric, isCreating: isLoggingMetric, analytics: projectAnalytics } = useAdMetrics(projectId);
-  const { accounts, linkAccount, unlinkAccount, sync, isSyncing } = useAdAccounts(projectId);
+  const { accounts, linkAccount, unlinkAccount, sync, isSyncing, isLinking } = useAdAccounts(projectId);
   
   const [activeTab, setActiveTab] = useState<'tasks' | 'timeline' | 'time' | 'ads' | 'team'>('tasks');
   const [isTimeModalOpen, setIsTimeModalOpen] = useState(false);
