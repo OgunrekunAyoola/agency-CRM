@@ -32,12 +32,14 @@ var connectionString = "";
 if (useSqlite)
 {
     connectionString = "Data Source=crm_local.db";
-    Log.Information("🚀 Using Local SQLite (zero-config). Database: {ConnectionString}", connectionString);
+    Log.Information("🚀 [DATABASE] Multi-Tenant CRM starting in 'Local Fast' mode (SQLite).");
+    Log.Information("📁 SQLite File: {ConnectionString}", connectionString);
 }
 else
 {
     connectionString = ParseDatabaseUrl(rawDatabaseUrl!); 
-    Log.Information("🌍 Using PostgreSQL provider (Railway).");
+    Log.Information("🌍 [DATABASE] Multi-Tenant CRM starting in 'Production' mode (PostgreSQL/Railway).");
+    Log.Information("🔗 Host: {Host}", connectionString.Split(';').FirstOrDefault(s => s.StartsWith("Host="))?.Split('=')[1]);
 }
 
 var allowedOrigins = (Environment.GetEnvironmentVariable("ALLOWED_ORIGINS") 
@@ -187,25 +189,38 @@ app.UseForwardedHeaders(new ForwardedHeadersOptions
 // Migrate Database on Startup
 using (var scope = app.Services.CreateScope())
 {
+    var services = scope.ServiceProvider;
     try
     {
-        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var db = services.GetRequiredService<AppDbContext>();
         
         if (useSqlite)
         {
+            Log.Information("🛠️ Ensuring SQLite schema is created...");
             db.Database.EnsureCreated();
-            Log.Information("SQLite Database migrated successfully.");
+            Log.Information("✅ SQLite Database is ready.");
         }
-        else if (db.Database.GetPendingMigrations().Any())
+        else 
         {
-            Log.Information("Applying pending PostgreSQL migrations...");
-            db.Database.Migrate();
-            Log.Information("PostgreSQL Migrations applied successfully.");
+            var pending = (await db.Database.GetPendingMigrationsAsync()).ToList();
+            if (pending.Any())
+            {
+                Log.Information("🛠️ Found {Count} pending PostgreSQL migrations: {Migrations}", pending.Count, string.Join(", ", pending));
+                Log.Information("🚀 Applying migrations to Railway...");
+                await db.Database.MigrateAsync();
+                Log.Information("✅ PostgreSQL Migrations applied successfully.");
+            }
+            else
+            {
+                Log.Information("✅ PostgreSQL Database is up to date (No pending migrations).");
+            }
         }
     }
     catch (Exception ex)
     {
-        Log.Error(ex, "An error occurred while migrating the database.");
+        Log.Fatal(ex, "❌ [CRITICAL] Database migration failed. The application cannot start safely.");
+        // In production, we want the app to crash if migrations fail to prevent corrupted state
+        if (!app.Environment.IsDevelopment()) throw; 
     }
 }
 
