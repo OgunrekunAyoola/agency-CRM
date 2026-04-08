@@ -34,6 +34,8 @@ describe('useAuth Hook', () => {
       id: '1',
       email: 'admin@example.com',
       fullName: 'Admin User',
+      role: 'Admin',
+      isOnboardingCompleted: true
     })
     expect(mockPush).toHaveBeenCalledWith('/dashboard')
   })

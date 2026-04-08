@@ -35,6 +35,8 @@ public class AppDbContext : DbContext, IUnitOfWork
     public DbSet<ProjectAdAccount> ProjectAdAccounts => Set<ProjectAdAccount>();
     public DbSet<TaskTemplate> TaskTemplates => Set<TaskTemplate>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
+    public DbSet<AdminAlert> AdminAlerts => Set<AdminAlert>();
+    public DbSet<OutboxMessage> OutboxMessages => Set<OutboxMessage>();
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

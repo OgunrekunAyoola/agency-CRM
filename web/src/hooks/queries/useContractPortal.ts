@@ -1,10 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import axios from 'axios';
-
-// Public API client for portal (doesn't need JWT in header as it uses Token in URL)
-const portalApi = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL + '/portal',
-});
+import { api } from '@/lib/api';
 
 export interface PortalContract {
   id: string;
@@ -22,29 +17,22 @@ export function useContractPortal(token: string) {
 
   const contractQuery = useQuery({
     queryKey: ['portal-contract', token],
-    queryFn: async () => {
-      const response = await portalApi.get<PortalContract>(`/contracts/${token}`);
-      return response.data;
-    },
+    queryFn: () => api.get<PortalContract>(`/portal/contracts/${token}`),
     enabled: !!token,
   });
 
   const signMutation = useMutation({
-    mutationFn: async (digitalSignature: string) => {
-      const response = await portalApi.post<PortalContract>(`/contracts/${token}/sign`, {
+    mutationFn: (digitalSignature: string) => 
+      api.post<PortalContract>(`/portal/contracts/${token}/sign`, {
         digitalSignature,
-      });
-      return response.data;
-    },
+      }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['portal-contract', token] });
     },
   });
 
   const viewMutation = useMutation({
-    mutationFn: async () => {
-      await portalApi.post(`/contracts/${token}/view`);
-    },
+    mutationFn: () => api.post(`/portal/contracts/${token}/view`, {}),
   });
 
   return {

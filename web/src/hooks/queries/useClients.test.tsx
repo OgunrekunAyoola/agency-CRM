@@ -44,7 +44,14 @@ describe('useClients Hook', () => {
             wrapper: createWrapper(),
         })
 
-        const newClient = { name: 'New Client' }
+        const newClient = { 
+            name: 'New Client',
+            legalName: 'New Client LLC',
+            vatNumber: 'VAT123',
+            businessAddress: '789 New St',
+            industry: 'Consulting',
+            priority: 1
+        }
         const createdClient = await result.current.createClient(newClient)
 
         expect(createdClient.name).toBe('New Client')

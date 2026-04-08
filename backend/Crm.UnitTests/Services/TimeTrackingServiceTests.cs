@@ -89,7 +89,7 @@ public class TimeTrackingServiceTests
     {
         // Arrange
         var projectId = Guid.NewGuid();
-        var request = new AddTeamMemberRequest { UserId = Guid.NewGuid(), Role = "Manager" };
+        var request = new AddTeamMemberRequest { UserId = Guid.NewGuid(), Role = "Lead" };
         var tenantId = Guid.NewGuid();
         _currentUserContextMock.Setup(c => c.TenantId).Returns(tenantId);
 

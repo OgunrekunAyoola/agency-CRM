@@ -25,8 +25,8 @@ COPY --from=build /app .
 # Security: Run as non-root user
 USER $APP_UID
 
-# Set environment variables
-ENV ASPNETCORE_HTTP_PORTS=8000
+# Set environment variables for Railway portability
+ENV ASPNETCORE_URLS=http://+:8000
 EXPOSE 8000
 
 ENTRYPOINT ["dotnet", "Crm.Api.dll"]

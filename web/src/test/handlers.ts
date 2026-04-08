@@ -6,14 +6,43 @@ export const handlers = [
   // Clients
   http.get(`${API_URL}/clients`, () => {
     return HttpResponse.json([
-      { id: '1', name: 'Mock Client 1', email: 'v1@example.com' },
-      { id: '2', name: 'Mock Client 2', email: 'v2@example.com' },
+      { 
+        id: '1', 
+        name: 'Mock Client 1', 
+        email: 'v1@example.com',
+        legalName: 'Mock Client 1 LTD',
+        vatNumber: 'GB123456789',
+        businessAddress: '123 Mock St, London',
+        industry: 'Tech',
+        priority: 0,
+        createdAt: new Date().toISOString()
+      },
+      { 
+        id: '2', 
+        name: 'Mock Client 2', 
+        email: 'v2@example.com',
+        legalName: 'Mock Client 2 LTD',
+        vatNumber: 'GB987654321',
+        businessAddress: '456 Mock Rd, Manchester',
+        industry: 'Marketing',
+        priority: 1,
+        createdAt: new Date().toISOString()
+      },
     ])
   }),
 
   http.post(`${API_URL}/clients`, async ({ request }) => {
     const body = await request.json() as any
-    return HttpResponse.json({ id: '3', name: body.name }, { status: 201 })
+    return HttpResponse.json({ 
+      id: '3', 
+      name: body.name,
+      legalName: body.legalName || body.name,
+      vatNumber: body.vatNumber || 'NEW-VAT',
+      businessAddress: body.businessAddress || 'New Address',
+      industry: body.industry || 'Other',
+      priority: body.priority || 0,
+      createdAt: new Date().toISOString()
+    }, { status: 201 })
   }),
 
   // Leads
@@ -26,9 +55,41 @@ export const handlers = [
   // Auth
   http.post(`${API_URL}/auth/login`, async () => {
     return HttpResponse.json({
-      user: { id: '1', email: 'admin@example.com', fullName: 'Admin User' },
-      accessToken: 'mock-access-token'
+      id: '1',
+      email: 'admin@example.com',
+      fullName: 'Admin User',
+      role: 'Admin',
+      isOnboardingCompleted: true
     })
+  }),
+
+  http.get(`${API_URL}/auth/me`, async () => {
+    return HttpResponse.json({
+      id: '1',
+      email: 'admin@example.com',
+      fullName: 'Admin User',
+      role: 'Admin',
+      isOnboardingCompleted: true
+    })
+  }),
+
+  http.post(`${API_URL}/auth/register`, async ({ request }) => {
+    const body = await request.json() as any
+    return HttpResponse.json({
+      id: '2',
+      email: body.email,
+      fullName: body.fullName,
+      role: 'Admin',
+      isOnboardingCompleted: false
+    }, { status: 201 })
+  }),
+
+  http.post(`${API_URL}/auth/onboarding/complete`, async () => {
+    return new HttpResponse(null, { status: 200 })
+  }),
+
+  http.post(`${API_URL}/auth/logout`, async () => {
+    return new HttpResponse(null, { status: 200 })
   }),
 
   // Projects

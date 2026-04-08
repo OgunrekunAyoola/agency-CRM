@@ -10,12 +10,15 @@ interface User {
   fullName: string;
   role: string;
   tenantId?: string;
+  isOnboardingCompleted: boolean;
 }
 
 interface AuthContextType {
   user: User | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
+  register: (data: { email: string; fullName: string; agencyName: string; password: string }) => Promise<void>;
+  completeOnboarding: (data: any) => Promise<void>;
   logout: () => Promise<void>;
 }
 
@@ -43,10 +46,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = async (email: string, password: string) => {
     const data = await api.post<User>('/api/auth/login', { email, password });
-    setUser(data); // data now only contains email and fullName
-    router.push('/dashboard');
+    setUser(data);
+    if (!data.isOnboardingCompleted) {
+      router.push('/onboarding');
+    } else {
+      router.push('/dashboard');
+    }
   };
 
+  const register = async (data: any) => {
+    const userResponse = await api.post<User>('/api/auth/register', data);
+    // After registration, we don't have cookies yet unless the API returns tokens or we log in
+    // For this flow, let's assume they need to log in or we auto-login
+    await login(data.email, data.password);
+  };
+
+  const completeOnboarding = async (data: any) => {
+    await api.post('/api/auth/onboarding/complete', data);
+    if (user) {
+      setUser({ ...user, isOnboardingCompleted: true });
+    }
+    router.push('/dashboard');
+  };
 
   const logout = async () => {
     await api.post('/api/auth/logout', {});
@@ -55,7 +76,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, register, completeOnboarding, logout }}>
       {children}
     </AuthContext.Provider>
   );

@@ -1,3 +1,5 @@
+'use client';
+
 import { useState } from 'react';
 import { useTasks, Task } from '@/hooks/queries/useTasks';
 import { useProjects } from '@/hooks/queries/useProjects';

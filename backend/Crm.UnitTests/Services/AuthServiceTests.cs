@@ -14,6 +14,7 @@ namespace Crm.UnitTests.Services;
 public class AuthServiceTests
 {
     private readonly Mock<IUserRepository> _userRepositoryMock;
+    private readonly Mock<IGenericRepository<Tenant>> _tenantRepositoryMock;
     private readonly Mock<IConfiguration> _configurationMock;
     private readonly Fixture _fixture;
     private readonly AuthService _service;
@@ -21,6 +22,7 @@ public class AuthServiceTests
     public AuthServiceTests()
     {
         _userRepositoryMock = new Mock<IUserRepository>();
+        _tenantRepositoryMock = new Mock<IGenericRepository<Tenant>>();
         _configurationMock = new Mock<IConfiguration>();
         _fixture = new Fixture();
         _fixture.Behaviors.Add(new OmitOnRecursionBehavior());
@@ -33,7 +35,7 @@ public class AuthServiceTests
 
         _configurationMock.Setup(c => c.GetSection("Jwt")).Returns(jwtSectionMock.Object);
 
-        _service = new AuthService(_userRepositoryMock.Object, _configurationMock.Object);
+        _service = new AuthService(_userRepositoryMock.Object, _tenantRepositoryMock.Object, _configurationMock.Object);
     }
 
     [Fact]
@@ -48,7 +50,8 @@ public class AuthServiceTests
             PasswordHash = BCrypt.Net.BCrypt.HashPassword(password),
             Role = UserRole.Admin,
             TenantId = Guid.NewGuid(),
-            RefreshTokens = new List<RefreshToken>()
+            RefreshTokens = new List<RefreshToken>(),
+            Tenant = new Tenant { OnboardingCompleted = true }
         };
 
         _userRepositoryMock.Setup(r => r.GetByEmailAsync(user.Email)).ReturnsAsync(user);
@@ -61,9 +64,69 @@ public class AuthServiceTests
         // Assert
         result.Response.Should().NotBeNull();
         result.Response!.Email.Should().Be(user.Email);
+        result.Response.IsOnboardingCompleted.Should().BeTrue();
         result.AccessToken.Should().NotBeNullOrEmpty();
         result.RefreshToken.Should().NotBeNullOrEmpty();
         _userRepositoryMock.Verify(r => r.UpdateAsync(It.IsAny<User>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task RegisterAsync_NewUser_CreatesTenantAndUser()
+    {
+        // Arrange
+        var request = new RegisterRequest 
+        { 
+            Email = "new@agency.com", 
+            FullName = "Jane Doe", 
+            AgencyName = "Doe Agency", 
+            Password = "Password123!" 
+        };
+
+        _userRepositoryMock.Setup(r => r.GetByEmailAsync(request.Email)).ReturnsAsync((User?)null);
+
+        // Act
+        var result = await _service.RegisterAsync(request, "127.0.0.1");
+
+        // Assert
+        result.Should().NotBeNull();
+        result.Email.Should().Be(request.Email);
+        result.IsOnboardingCompleted.Should().BeFalse();
+        
+        _tenantRepositoryMock.Verify(r => r.AddAsync(It.Is<Tenant>(t => t.Name == request.AgencyName)), Times.Once);
+        _userRepositoryMock.Verify(r => r.AddAsync(It.Is<User>(u => u.Email == request.Email)), Times.Once);
+    }
+
+    [Fact]
+    public async Task CompleteOnboardingAsync_ValidData_UpdatesUserAndTenant()
+    {
+        // Arrange
+        var userId = Guid.NewGuid();
+        var tenantId = Guid.NewGuid();
+        var user = new User { Id = userId, TenantId = tenantId };
+        var tenant = new Tenant { Id = tenantId, OnboardingCompleted = false };
+
+        _userRepositoryMock.Setup(r => r.GetByIdAsync(userId)).ReturnsAsync(user);
+        _tenantRepositoryMock.Setup(r => r.GetByIdAsync(tenantId)).ReturnsAsync(tenant);
+
+        var request = new OnboardingRequest
+        {
+            JobTitle = "CEO",
+            Industry = "SaaS",
+            TargetMonthlyRevenue = 50000,
+            BrandColor = "#000000"
+        };
+
+        // Act
+        var success = await _service.CompleteOnboardingAsync(userId, request);
+
+        // Assert
+        success.Should().BeTrue();
+        user.JobTitle.Should().Be(request.JobTitle);
+        tenant.Industry.Should().Be(request.Industry);
+        tenant.OnboardingCompleted.Should().BeTrue();
+        
+        _userRepositoryMock.Verify(r => r.UpdateAsync(user), Times.Once);
+        _tenantRepositoryMock.Verify(r => r.UpdateAsync(tenant), Times.Once);
     }
 
     [Fact]
@@ -88,7 +151,7 @@ public class AuthServiceTests
         // Arrange
         var oldToken = "old-token";
         var user = _fixture.Create<User>();
-        var refreshToken = new RefreshToken { Token = oldToken, Expires = DateTime.UtcNow.AddDays(1), Created = DateTime.UtcNow };
+        var refreshToken = new RefreshToken { Token = oldToken, Expires = DateTime.UtcNow.AddDays(1), Created = DateTime.UtcNow, UserId = user.Id };
         user.RefreshTokens = new List<RefreshToken> { refreshToken };
 
         _userRepositoryMock.Setup(r => r.GetByRefreshTokenAsync(oldToken)).ReturnsAsync(user);

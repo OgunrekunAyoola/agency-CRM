@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useAuth } from '@/hooks/useAuth';
 
 const NAV_ITEMS = [
   { label: 'Clients', href: '/clients', color: 'hover:text-blue-400' },
@@ -16,6 +17,9 @@ const NAV_ITEMS = [
 
 export default function Navbar() {
   const pathname = usePathname();
+  const { user, logout, loading } = useAuth();
+
+  if (loading) return <nav className="h-16 bg-slate-950 border-b" />;
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b bg-slate-950/80 backdrop-blur-md text-white shadow-lg">
@@ -46,12 +50,26 @@ export default function Navbar() {
         </div>
 
         <div className="flex items-center gap-4">
-          <Link 
-            href="/login" 
-            className="text-sm font-semibold bg-rose-600/90 hover:bg-rose-600 px-4 py-2 rounded-lg transition-all shadow-md active:scale-95"
-          >
-            Logout
-          </Link>
+          {user ? (
+            <div className="flex items-center gap-4">
+                <span className="text-sm text-slate-400 hidden sm:inline">
+                    {user.fullName}
+                </span>
+                <button 
+                  onClick={logout}
+                  className="text-sm font-semibold bg-rose-600/90 hover:bg-rose-600 px-4 py-2 rounded-lg transition-all shadow-md active:scale-95"
+                >
+                  Logout
+                </button>
+            </div>
+          ) : (
+            <Link 
+              href="/login" 
+              className="text-sm font-semibold bg-blue-600/90 hover:bg-blue-600 px-4 py-2 rounded-lg transition-all shadow-md active:scale-95"
+            >
+              Sign In
+            </Link>
+          )}
         </div>
       </div>
     </nav>

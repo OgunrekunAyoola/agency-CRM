@@ -47,8 +47,29 @@ export default function DashboardPage() {
   return (
     <Container>
       <Section title="Agency Performance">
-        <div className="grid gap-6 md:grid-cols-3 lg:grid-cols-3">
-          {statCards.map((stat) => (
+        <div className="grid gap-6 md:grid-cols-4 lg:grid-cols-4">
+          <Card className="md:col-span-2 shadow-sm border-blue-100 bg-gradient-to-br from-white to-blue-50/30">
+            <CardHeader>
+              <CardTitle className="text-sm font-medium text-blue-600">Revenue Goal Progress</CardTitle>
+            </CardHeader>
+            <CardContent>
+               <div className="flex justify-between items-end mb-2">
+                  <div className="text-3xl font-bold">${totalRevenue.toLocaleString()}</div>
+                  <div className="text-sm text-muted-foreground">Goal: $50,000</div>
+               </div>
+               <div className="w-full bg-slate-200 h-3 rounded-full overflow-hidden">
+                  <div 
+                    className="bg-blue-600 h-full transition-all duration-1000" 
+                    style={{ width: `${Math.min((totalRevenue / 50000) * 100, 100)}%` }} 
+                  />
+               </div>
+               <p className="mt-2 text-xs text-muted-foreground font-medium">
+                  {Math.round((totalRevenue / 50000) * 100)}% of monthly target reached
+               </p>
+            </CardContent>
+          </Card>
+
+          {statCards.slice(0, 4).map((stat) => (
             <Card key={stat.title} className="hover:shadow-md transition-shadow">
               <a href={stat.link} className="block">
                 <CardHeader>
@@ -57,8 +78,7 @@ export default function DashboardPage() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className={`text-3xl font-bold ${stat.color}`}>{stat.value}</div>
-                  <div className="mt-4 text-xs text-muted-foreground font-medium underline">Details →</div>
+                  <div className={`text-2xl font-bold ${stat.color}`}>{stat.value}</div>
                 </CardContent>
               </a>
             </Card>

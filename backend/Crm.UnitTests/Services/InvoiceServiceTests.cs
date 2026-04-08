@@ -81,6 +81,7 @@ public class InvoiceServiceTests
             .With(c => c.Status, ContractStatus.Signed)
             .With(c => c.LastInvoicedAt, (DateTimeOffset?)null)
             .With(c => c.StartDate, DateTime.UtcNow.AddDays(-1))
+            .With(c => c.SuccessFeeType, SuccessFeeType.None)
             .CreateMany(2)
             .ToList();
         

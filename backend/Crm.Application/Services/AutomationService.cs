@@ -15,6 +15,7 @@ public class AutomationService : IAutomationService
     private readonly IGenericRepository<Invoice> _invoiceRepository;
     private readonly IGenericRepository<Lead> _leadRepository;
     private readonly IGenericRepository<Client> _clientRepository;
+    private readonly IGenericRepository<AdminAlert> _alertRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<AutomationService> _logger;
     private readonly ICurrentUserContext _userContext;
@@ -36,7 +37,8 @@ public class AutomationService : IAutomationService
         ICurrentUserContext userContext,
         ISlackService slackService,
         IEmailService emailService,
-        IInvoiceService invoiceService)
+        IInvoiceService invoiceService,
+        IGenericRepository<AdminAlert> alertRepository)
     {
         _offerRepository = offerRepository;
         _projectRepository = projectRepository;
@@ -52,6 +54,7 @@ public class AutomationService : IAutomationService
         _slackService = slackService;
         _emailService = emailService;
         _invoiceService = invoiceService;
+        _alertRepository = alertRepository;
     }
 
     public async Task ProcessAcceptedOfferAsync(Guid offerId)
@@ -206,6 +209,14 @@ public class AutomationService : IAutomationService
         {
             await _unitOfWork.RollbackAsync();
             _logger.LogError(ex, "Error processing accepted offer {OfferId}. Transaction rolled back.", offerId);
+            
+            await _alertRepository.AddAsync(new AdminAlert
+            {
+                Title = "Offer Automation Failed",
+                Message = $"Failed to process offer {offerId}. Error: {ex.Message}",
+                Severity = AlertSeverity.Critical,
+                Source = nameof(AutomationService)
+            });
             throw;
         }
     }

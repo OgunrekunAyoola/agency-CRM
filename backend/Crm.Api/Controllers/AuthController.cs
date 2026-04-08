@@ -44,6 +44,41 @@ public class AuthController : ControllerBase
         return Ok(response);
     }
 
+    [AllowAnonymous]
+    [HttpPost("register")]
+    public async Task<IActionResult> Register([FromBody] RegisterRequest request)
+    {
+        _logger.LogInformation("Registration attempt for email: {Email}", request.Email);
+        try
+        {
+            var response = await _authService.RegisterAsync(request, GetIpAddress());
+            return Ok(response);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { Message = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Registration failed for {Email}", request.Email);
+            return StatusCode(500, new { Message = "An error occurred during registration." });
+        }
+    }
+
+    [Authorize]
+    [HttpPost("onboarding/complete")]
+    public async Task<IActionResult> CompleteOnboarding([FromBody] OnboardingRequest request)
+    {
+        var userId = _userContext.UserId;
+        if (!userId.HasValue) return Unauthorized();
+
+        var success = await _authService.CompleteOnboardingAsync(userId.Value, request);
+        if (!success) return BadRequest(new { Message = "Failed to complete onboarding." });
+
+        return Ok(new { Message = "Onboarding completed successfully." });
+    }
+
+
     [HttpPost("refresh")]
     public async Task<IActionResult> Refresh()
     {

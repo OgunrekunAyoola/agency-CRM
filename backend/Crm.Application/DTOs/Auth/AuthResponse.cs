@@ -7,6 +7,7 @@ public class AuthResponse
     public string FullName { get; set; } = string.Empty;
     public string Role { get; set; } = string.Empty;
     public Guid TenantId { get; set; }
+    public bool IsOnboardingCompleted { get; set; }
     public string AccessToken { get; set; } = string.Empty;
 }
 

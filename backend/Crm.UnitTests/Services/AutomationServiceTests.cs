@@ -20,6 +20,8 @@ public class AutomationServiceTests
     private readonly Mock<IGenericRepository<Invoice>> _invoiceRepositoryMock;
     private readonly Mock<IGenericRepository<Lead>> _leadRepositoryMock;
     private readonly Mock<IGenericRepository<Client>> _clientRepositoryMock;
+    private readonly Mock<IGenericRepository<AdminAlert>> _alertRepositoryMock;
+    private readonly Mock<IUnitOfWork> _unitOfWorkMock;
     private readonly Mock<ILogger<AutomationService>> _loggerMock;
     private readonly Mock<ICurrentUserContext> _userContextMock;
     private readonly Mock<ISlackService> _slackServiceMock;
@@ -38,6 +40,8 @@ public class AutomationServiceTests
         _invoiceRepositoryMock = new Mock<IGenericRepository<Invoice>>();
         _leadRepositoryMock = new Mock<IGenericRepository<Lead>>();
         _clientRepositoryMock = new Mock<IGenericRepository<Client>>();
+        _alertRepositoryMock = new Mock<IGenericRepository<AdminAlert>>();
+        _unitOfWorkMock = new Mock<IUnitOfWork>();
         _loggerMock = new Mock<ILogger<AutomationService>>();
         _userContextMock = new Mock<ICurrentUserContext>();
         _slackServiceMock = new Mock<ISlackService>();
@@ -56,11 +60,13 @@ public class AutomationServiceTests
             _invoiceRepositoryMock.Object,
             _leadRepositoryMock.Object,
             _clientRepositoryMock.Object,
+            _unitOfWorkMock.Object,
             _loggerMock.Object,
             _userContextMock.Object,
             _slackServiceMock.Object,
             _emailServiceMock.Object,
-            _invoiceServiceMock.Object);
+            _invoiceServiceMock.Object,
+            _alertRepositoryMock.Object);
     }
 
     [Fact]
@@ -91,7 +97,24 @@ public class AutomationServiceTests
         _projectRepositoryMock.Verify(r => r.AddAsync(It.Is<Project>(p => p.Name == offer.Title)), Times.Once);
         _contractRepositoryMock.Verify(r => r.AddAsync(It.Is<Contract>(c => c.ProjectId != Guid.Empty)), Times.Once);
         _slackServiceMock.Verify(s => s.SendNotificationAsync(It.IsAny<string>()), Times.Once);
-        _projectRepositoryMock.Verify(r => r.SaveChangesAsync(), Times.Once);
+        _unitOfWorkMock.Verify(u => u.CommitAsync(), Times.Once);
+    }
+
+    [Fact]
+    public async Task ProcessAcceptedOfferAsync_WhenExceptionOccurs_LogsCriticalAlert()
+    {
+        // Arrange
+        var offerId = Guid.NewGuid();
+        var offerQueryable = new List<Offer>().AsQueryable().BuildMock(); // Should fail due to null logic or similar, but let's force it
+        _offerRepositoryMock.Setup(r => r.AsQueryable()).Throws(new Exception("DB Failure"));
+
+        // Act
+        Func<Task> act = () => _service.ProcessAcceptedOfferAsync(offerId);
+
+        // Assert
+        await act.Should().ThrowAsync<Exception>();
+        _unitOfWorkMock.Verify(u => u.RollbackAsync(), Times.Once);
+        _alertRepositoryMock.Verify(r => r.AddAsync(It.Is<AdminAlert>(a => a.Severity == AlertSeverity.Critical)), Times.Once);
     }
 
     [Fact]

@@ -14,6 +14,10 @@ export const CardTitle = ({ children, className = '' }: { children: ReactNode; c
   <h3 className={`text-2xl font-semibold leading-none tracking-tight ${className}`}>{children}</h3>
 );
 
+export const CardDescription = ({ children, className = '' }: { children: ReactNode; className?: string }) => (
+  <p className={`text-sm text-slate-500 ${className}`}>{children}</p>
+);
+
 export const CardContent = ({ children, className = '' }: { children: ReactNode; className?: string }) => (
   <div className={`p-6 pt-0 ${className}`}>{children}</div>
 );
