@@ -17,14 +17,14 @@ export function useAutomation() {
     queryKey: ['automation-templates'],
     queryFn: async () => {
       const response = await api.get<TaskTemplate[]>('/automation/templates');
-      return response.data;
+      return response;
     },
   });
 
   const createTemplateMutation = useMutation({
     mutationFn: async (template: Partial<TaskTemplate>) => {
       const response = await api.post<TaskTemplate>('/automation/templates', template);
-      return response.data;
+      return response;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['automation-templates'] });
@@ -42,8 +42,8 @@ export function useAutomation() {
 
   const triggerOverdueCheckMutation = useMutation({
     mutationFn: async () => {
-      const response = await api.post('/automation/trigger-overdue-check');
-      return response.data;
+      const response = await api.post('/automation/trigger-overdue-check', {});
+      return response;
     },
   });
 
