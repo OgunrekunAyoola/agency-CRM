@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useAutomation } from '@/hooks/queries/useAutomation';
+import { useAutomation, TaskTemplate } from '@/hooks/queries/useAutomation';
 import { 
   Plus, 
   Trash2, 
@@ -144,7 +144,7 @@ export default function AutomationSettingsPage() {
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {templates.map((template) => (
+                {templates.map((template: TaskTemplate) => (
                   <div key={template.id} className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow relative group">
                     <button
                       onClick={() => deleteTemplate(template.id)}

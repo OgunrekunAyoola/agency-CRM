@@ -70,6 +70,8 @@ export const api = {
       method: 'PUT', 
       body: JSON.stringify(body) 
     }),
+  delete: <T = void>(endpoint: string) =>
+    apiRequest<T>(endpoint, { method: 'DELETE' }),
 };
 
 

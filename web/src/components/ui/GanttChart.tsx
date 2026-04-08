@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { format, differenceInDays, startOfMonth, addMonths, endOfMonth, eachDayOfInterval, isSameDay } from 'date-fns';
+import { format, differenceInDays, startOfMonth, addMonths, endOfMonth, isSameDay } from 'date-fns';
 import { cn } from '@/lib/utils';
 
 interface GanttTask {
@@ -34,7 +34,11 @@ export function GanttChart({ tasks }: GanttChartProps) {
   const chartEnd = endOfMonth(addMonths(latestDate, 1));
   
   const totalDays = differenceInDays(chartEnd, chartStart) + 1;
-  const days = eachDayOfInterval({ start: chartStart, end: chartEnd });
+  const days = Array.from({ length: totalDays }, (_, i) => {
+    const d = new Date(chartStart);
+    d.setDate(d.getDate() + i);
+    return d;
+  });
 
   // Get month boundaries for headers
   const months: { name: string; startDay: number; length: number }[] = [];

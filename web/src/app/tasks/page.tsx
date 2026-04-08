@@ -24,6 +24,22 @@ export default function TasksPage() {
   const [newTask, setNewTask] = useState({ title: '', description: '', projectId: '' });
   const [newTime, setNewTime] = useState({ hours: 1, description: '', date: new Date().toISOString().split('T')[0] });
 
+  const getProjectName = (id: string | null | undefined) => projects.find(p => p.id === id)?.name || 'Unknown Project';
+  const projectOptions = projects.map(p => ({ label: p.name, value: p.id }));
+
+  const handleCreate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await createTask(newTask);
+      setIsModalOpen(false);
+      setNewTask({ title: '', description: '', projectId: '' });
+      toast.success('Task created successfully');
+    } catch {
+      toast.error('Failed to create task');
+    }
+  };
+
+
   const handleLogTime = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedTaskForTime) return;
