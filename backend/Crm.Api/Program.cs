@@ -184,19 +184,6 @@ app.UseForwardedHeaders(new ForwardedHeadersOptions
     ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
 });
 
-// Seed Database (Always runs if database is empty, even in Production)
-try 
-{
-    using (var scope = app.Services.CreateScope())
-    {
-        await DbInitializer.SeedAsync(scope.ServiceProvider);
-    }
-}
-catch (Exception ex)
-{
-    Log.Error(ex, "[CRITICAL STARTUP ERROR] DbInitializer.SeedAsync failed: {Message}", ex.Message);
-}
-
 // Migrate Database on Startup
 using (var scope = app.Services.CreateScope())
 {
@@ -220,6 +207,19 @@ using (var scope = app.Services.CreateScope())
     {
         Log.Error(ex, "An error occurred while migrating the database.");
     }
+}
+
+// Seed Database (Always runs if database is empty, even in Production)
+try 
+{
+    using (var scope = app.Services.CreateScope())
+    {
+        await DbInitializer.SeedAsync(scope.ServiceProvider);
+    }
+}
+catch (Exception ex)
+{
+    Log.Error(ex, "[CRITICAL STARTUP ERROR] DbInitializer.SeedAsync failed: {Message}", ex.Message);
 }
 
 // Configure the HTTP request pipeline.

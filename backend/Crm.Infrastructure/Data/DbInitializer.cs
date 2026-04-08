@@ -10,8 +10,6 @@ public static class DbInitializer
     {
         var context = serviceProvider.GetRequiredService<AppDbContext>();
 
-        await context.Database.EnsureCreatedAsync();
-
         await SeedTenantsAsync(context);
         await context.SaveChangesAsync();
 
