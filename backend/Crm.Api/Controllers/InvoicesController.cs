@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Crm.Application.Interfaces;
 using Crm.Application.Services;
 using Crm.Application.DTOs.Invoices;
 using Crm.Domain.Entities;
@@ -11,9 +12,9 @@ namespace Crm.Api.Controllers;
 [Route("api/[controller]")]
 public class InvoicesController : ControllerBase
 {
-    private readonly InvoiceService _invoiceService;
+    private readonly IInvoiceService _invoiceService;
 
-    public InvoicesController(InvoiceService invoiceService)
+    public InvoicesController(IInvoiceService invoiceService)
     {
         _invoiceService = invoiceService;
     }

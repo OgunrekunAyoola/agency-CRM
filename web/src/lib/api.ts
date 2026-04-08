@@ -27,9 +27,17 @@ export async function apiRequest<T>(endpoint: string, options: RequestInit = {})
 
       if (refreshResponse.ok) {
         response = await fetch(`${API_BASE_URL}${normalizedEndpoint}`, fetchOptions);
+      } else {
+        // Refresh failed, redirect to login if in browser
+        if (typeof window !== 'undefined') {
+          window.location.href = '/login';
+        }
       }
     } catch (err) {
       console.error('Auto-refresh failed', err);
+      if (typeof window !== 'undefined') {
+        window.location.href = '/login';
+      }
     }
   }
 

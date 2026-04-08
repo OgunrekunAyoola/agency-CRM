@@ -11,6 +11,12 @@ interface User {
   role: string;
   tenantId?: string;
   isOnboardingCompleted: boolean;
+  avatarUrl?: string;
+  jobTitle?: string;
+  phoneNumber?: string;
+  hourlyRate?: number;
+  brandColor?: string;
+  logoUrl?: string;
 }
 
 interface AuthContextType {

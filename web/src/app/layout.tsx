@@ -5,11 +5,15 @@ import "./globals.css";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
+  display: "swap",
+  preload: false,
 });
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+  display: "swap",
+  preload: false,
 });
 
 export const metadata: Metadata = {
@@ -23,7 +27,7 @@ import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { AuthProvider } from "@/hooks/useAuth";
 import { QueryProvider } from "@/components/providers/QueryProvider";
 import { ToasterProvider } from "@/components/providers/ToasterProvider";
-
+import { BrandThemeProvider } from "@/components/providers/BrandThemeProvider";
 
 export default function RootLayout({
   children,
@@ -38,12 +42,14 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col bg-gray-50">
         <QueryProvider>
           <AuthProvider>
-            <Navbar />
-            <main className="flex-1 container mx-auto px-4 py-8">
-              <Breadcrumbs />
-              {children}
-            </main>
-            <ToasterProvider />
+            <BrandThemeProvider>
+              <Navbar />
+              <main className="flex-1 container mx-auto px-4 py-8">
+                <Breadcrumbs />
+                {children}
+              </main>
+              <ToasterProvider />
+            </BrandThemeProvider>
           </AuthProvider>
         </QueryProvider>
       </body>

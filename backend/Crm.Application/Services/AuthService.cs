@@ -35,7 +35,13 @@ public class AuthService
             FullName = user.FullName,
             Role = user.Role.ToString(),
             TenantId = user.TenantId,
-            IsOnboardingCompleted = user.Tenant?.OnboardingCompleted ?? false
+            IsOnboardingCompleted = user.Tenant?.OnboardingCompleted ?? false,
+            AvatarUrl = user.AvatarUrl,
+            JobTitle = user.JobTitle,
+            PhoneNumber = user.PhoneNumber,
+            HourlyRate = user.HourlyRate,
+            BrandColor = user.Tenant?.BrandColor,
+            LogoUrl = user.Tenant?.LogoUrl
         };
     }
 
@@ -61,7 +67,13 @@ public class AuthService
             FullName = user.FullName,
             Role = user.Role.ToString(),
             TenantId = user.TenantId,
-            IsOnboardingCompleted = user.Tenant?.OnboardingCompleted ?? false
+            IsOnboardingCompleted = user.Tenant?.OnboardingCompleted ?? false,
+            AvatarUrl = user.AvatarUrl,
+            JobTitle = user.JobTitle,
+            PhoneNumber = user.PhoneNumber,
+            HourlyRate = user.HourlyRate,
+            BrandColor = user.Tenant?.BrandColor,
+            LogoUrl = user.Tenant?.LogoUrl
         };
 
         return (response, accessToken, refreshToken.Token);
@@ -153,7 +165,13 @@ public class AuthService
         return (new AuthResponse
         {
             Email = user.Email,
-            FullName = user.FullName
+            FullName = user.FullName,
+            Role = user.Role.ToString(),
+            TenantId = user.TenantId,
+            IsOnboardingCompleted = user.Tenant?.OnboardingCompleted ?? false,
+            AvatarUrl = user.AvatarUrl,
+            JobTitle = user.JobTitle,
+            BrandColor = user.Tenant?.BrandColor
         }, accessToken, newRefreshToken.Token);
     }
 

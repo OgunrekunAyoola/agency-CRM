@@ -9,5 +9,15 @@ public class AuthResponse
     public Guid TenantId { get; set; }
     public bool IsOnboardingCompleted { get; set; }
     public string AccessToken { get; set; } = string.Empty;
+    
+    // Rich Profile Fields
+    public string? AvatarUrl { get; set; }
+    public string? JobTitle { get; set; }
+    public string? PhoneNumber { get; set; }
+    public decimal HourlyRate { get; set; }
+
+    // Branding Fields
+    public string? BrandColor { get; set; }
+    public string? LogoUrl { get; set; }
 }
 
