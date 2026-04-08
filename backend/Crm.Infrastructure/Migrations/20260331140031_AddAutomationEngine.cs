@@ -45,14 +45,14 @@ namespace Crm.Infrastructure.Migrations
                 table: "Contracts",
                 type: "timestamp with time zone",
                 nullable: false,
-                defaultValue: new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified));
+                defaultValue: new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc));
 
             migrationBuilder.AddColumn<DateTime>(
                 name: "StartDate",
                 table: "Contracts",
                 type: "timestamp with time zone",
                 nullable: false,
-                defaultValue: new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified));
+                defaultValue: new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc));
 
             migrationBuilder.CreateIndex(
                 name: "IX_Invoices_ClientId",

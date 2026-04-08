@@ -47,7 +47,7 @@ namespace Crm.Infrastructure.Migrations
                 table: "Tasks",
                 type: "timestamp with time zone",
                 nullable: false,
-                defaultValue: new DateTime(2026, 4, 1, 0, 0, 0, 0, DateTimeKind.Unspecified));
+                defaultValue: new DateTime(2026, 4, 1, 0, 0, 0, 0, DateTimeKind.Utc));
         }
 
         /// <inheritdoc />
