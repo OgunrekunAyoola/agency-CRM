@@ -23,7 +23,14 @@ public static class DbInitializer
 
         // Tenant A
         var tenantAId = Guid.Parse("00000000-0000-0000-0000-000000000001");
-        var tenantA = new Tenant { Id = tenantAId, Name = "Tenant A - Tech Corp" };
+        var tenantA = new Tenant 
+        { 
+            Id = tenantAId, 
+            Name = "Tenant A - Tech Corp",
+            BrandColor = "#0ea5e9", // Sky Blue
+            Industry = "Technology",
+            OnboardingCompleted = true 
+        };
         
         var adminA = new User
         {
@@ -32,12 +39,23 @@ public static class DbInitializer
             FullName = "Admin Tenant A",
             PasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin123!"),
             Role = UserRole.Admin,
-            TenantId = tenantAId
+            TenantId = tenantAId,
+            AvatarUrl = "https://api.dicebear.com/7.x/avataaars/svg?seed=AdminA",
+            JobTitle = "Security Administrator",
+            PhoneNumber = "+1-555-0101",
+            HourlyRate = 150.00m
         };
 
         // Tenant B
         var tenantBId = Guid.Parse("00000000-0000-0000-0000-000000000002");
-        var tenantB = new Tenant { Id = tenantBId, Name = "Tenant B - Creative Agency" };
+        var tenantB = new Tenant 
+        { 
+            Id = tenantBId, 
+            Name = "Tenant B - Creative Agency",
+            BrandColor = "#f43f5e", // Rose
+            Industry = "Advertising",
+            OnboardingCompleted = true 
+        };
         
         var adminB = new User
         {
@@ -46,7 +64,11 @@ public static class DbInitializer
             FullName = "Admin Tenant B",
             PasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin123!"),
             Role = UserRole.Admin,
-            TenantId = tenantBId
+            TenantId = tenantBId,
+            AvatarUrl = "https://api.dicebear.com/7.x/avataaars/svg?seed=AdminB",
+            JobTitle = "Creative Director",
+            PhoneNumber = "+1-555-0202",
+            HourlyRate = 125.00m
         };
 
         await context.Tenants.AddRangeAsync(tenantA, tenantB);
