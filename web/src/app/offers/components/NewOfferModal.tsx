@@ -14,6 +14,12 @@ interface NewOfferModalProps {
   onClose: () => void;
 }
 
+interface OfferItem {
+  title: string;
+  description: string;
+  amount: number;
+}
+
 export const NewOfferModal = ({ isOpen, onClose }: NewOfferModalProps) => {
   const { leads, isLoading: leadsLoading } = useLeads();
   const { createOffer, isCreating } = useOffers();
@@ -24,7 +30,7 @@ export const NewOfferModal = ({ isOpen, onClose }: NewOfferModalProps) => {
     totalAmount: '',
     notes: '',
     quoteTemplateId: 'template-standard',
-    items: [] as { title: string; description: string; amount: number }[]
+    items: [] as OfferItem[]
   });
 
   const addItem = () => {
@@ -40,7 +46,7 @@ export const NewOfferModal = ({ isOpen, onClose }: NewOfferModalProps) => {
     setFormData({ ...formData, items: newItems });
   };
 
-  const updateItem = (index: number, field: string, value: any) => {
+  const updateItem = (index: number, field: keyof OfferItem, value: string | number) => {
     const newItems = [...formData.items];
     newItems[index] = { ...newItems[index], [field]: value };
     

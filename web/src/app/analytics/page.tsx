@@ -1,14 +1,12 @@
 'use client';
 import { ProtectedRoute } from '@/components/ui/ProtectedRoute';
-import { PageError } from '@/components/ui/PageError';
-
 import { Container, Section, Card, CardHeader, CardTitle, CardContent } from '@/components/ui/LayoutPrimitives';
 import { ROIAnalytics } from '../dashboard/components/ROIAnalytics';
 import { useAdMetrics } from '@/hooks/queries/useAdMetrics';
 import { useProjects } from '@/hooks/queries/useProjects';
 
 export default function AnalyticsPage() {
-  const { analytics, isAnalyticsLoading } = useAdMetrics();
+  const { analytics } = useAdMetrics();
   const { projects } = useProjects();
 
   return (

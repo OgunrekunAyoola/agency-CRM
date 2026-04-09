@@ -20,8 +20,9 @@ export default function LoginPage() {
     setIsSubmitting(true);
     try {
       await login(email, password);
-    } catch (err: any) {
-      setError(err?.response?.data?.message || err.message || 'Login failed');
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Login failed';
+      setError(message);
     } finally {
       setIsSubmitting(false);
     }
@@ -77,7 +78,7 @@ export default function LoginPage() {
             </form>
 
             <div className="mt-6 text-center text-sm text-slate-600">
-              Don't have an account?{' '}
+              Don&apos;t have an account?{' '}
               <Link href="/register" className="font-semibold text-blue-600 hover:text-blue-500 transition-colors">
                 Start your 14-day free trial
               </Link>

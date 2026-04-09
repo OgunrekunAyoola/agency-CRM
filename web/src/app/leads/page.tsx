@@ -35,8 +35,9 @@ export default function LeadsPage() {
       await createLead(newLead);
       setNewLead({ title: '', description: '', contactName: '', email: '', phone: '', companyName: '', source: LeadSource.Manual, interest: ServiceType.Other, budgetRange: '' });
       setIsModalOpen(false);
-    } catch (err: any) {
-      setFormError(err?.message || 'Failed to create lead. Please try again.');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Failed to create lead. Please try again.';
+      setFormError(message);
     }
   };
 
@@ -58,7 +59,7 @@ export default function LeadsPage() {
           <select 
             className="border rounded px-3 py-2 bg-background text-sm"
             value={sortBy}
-            onChange={(e) => setSortBy(e.target.value as any)}
+            onChange={(e) => setSortBy(e.target.value as 'title' | 'date' | 'value')}
           >
             <option value="date">Sort by Date</option>
             <option value="title">Sort by Name</option>

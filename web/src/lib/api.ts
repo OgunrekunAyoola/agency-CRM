@@ -65,7 +65,7 @@ export async function apiRequest<T>(endpoint: string, options: RequestInit = {})
 
 
   const text = await response.text();
-  return text ? JSON.parse(text) : {} as any;
+  return text ? JSON.parse(text) : {} as T;
 }
 
 export const api = {

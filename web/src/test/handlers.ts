@@ -32,7 +32,7 @@ export const handlers = [
   }),
 
   http.post(`${API_URL}/clients`, async ({ request }) => {
-    const body = await request.json() as any
+    const body = (await request.json()) as Record<string, unknown>
     return HttpResponse.json({ 
       id: '3', 
       name: body.name,
@@ -53,7 +53,7 @@ export const handlers = [
   }),
 
   http.patch(`${API_URL}/leads/:id`, async ({ request }) => {
-    const body = await request.json() as any;
+    const body = (await request.json()) as Record<string, unknown>;
     return HttpResponse.json({ id: '1', ...body });
   }),
 
@@ -90,7 +90,7 @@ export const handlers = [
   }),
 
   http.post(`${API_URL}/auth/register`, async ({ request }) => {
-    const body = await request.json() as any
+    const body = (await request.json()) as Record<string, unknown>
     return HttpResponse.json({
       id: '2',
       email: body.email,

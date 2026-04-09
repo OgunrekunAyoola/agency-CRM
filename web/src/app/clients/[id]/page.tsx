@@ -111,7 +111,7 @@ export default function ClientDetailPage() {
                         <TableHeader>
                             <TableRow>
                                 <TableHead>Project Name</TableHead>
-                                <TableHead className="text-right">Budget</TableHead>
+                                <TableHead className="text-right">Project Page</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -120,7 +120,11 @@ export default function ClientDetailPage() {
                                     <TableCell className="font-medium underline decoration-slate-200">
                                         <Link href={`/projects/${p.id}`}>{p.name}</Link>
                                     </TableCell>
-                                    <TableCell className="text-right font-mono">${p.budget.toLocaleString()}</TableCell>
+                                    <TableCell className="text-right">
+                                        <Link href={`/projects/${p.id}`}>
+                                            <Button size="sm" variant="ghost">View Details</Button>
+                                        </Link>
+                                    </TableCell>
                                 </TableRow>
                             ))}
                             {clientProjects.length === 0 && (

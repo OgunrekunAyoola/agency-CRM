@@ -28,8 +28,9 @@ export default function RegisterPage() {
     setIsSubmitting(true);
     try {
       await register(formData);
-    } catch (err: any) {
-      setError(err?.response?.data?.message || err.message || 'Registration failed');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Registration failed';
+      setError(message);
     } finally {
       setIsSubmitting(false);
     }

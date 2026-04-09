@@ -1,6 +1,5 @@
 'use client';
 import { ProtectedRoute } from '@/components/ui/ProtectedRoute';
-import { PageError } from '@/components/ui/PageError';
 
 import { useState } from 'react';
 import Link from 'next/link';
@@ -12,8 +11,8 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/Table';
-import { Container, Section } from '@/components/ui/LayoutPrimitives';
 import { Modal } from '@/components/ui/Modal';
+import { Container, Section } from '@/components/ui/LayoutPrimitives';
 import { toast } from 'sonner';
 
 export default function ProjectsPage() {

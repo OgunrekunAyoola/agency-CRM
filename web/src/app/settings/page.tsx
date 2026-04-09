@@ -1,6 +1,5 @@
 'use client';
 import { ProtectedRoute } from '@/components/ui/ProtectedRoute';
-import { PageError } from '@/components/ui/PageError';
 
 import { Container, Section } from '@/components/ui/LayoutPrimitives';
 import { Button } from '@/components/ui/Button';

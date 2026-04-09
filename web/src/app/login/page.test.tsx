@@ -15,7 +15,7 @@ describe('LoginPage Component', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    (useAuth as any).mockReturnValue({
+    vi.mocked(useAuth).mockReturnValue({
       login: mockLogin,
       register: mockRegister,
       logout: mockLogout,
@@ -52,9 +52,7 @@ describe('LoginPage Component', () => {
   })
 
   it('displays error message on failed login', async () => {
-    mockLogin.mockRejectedValue({ 
-      response: { data: { message: 'Invalid credentials' } } 
-    })
+    mockLogin.mockRejectedValue(new Error('Invalid credentials'))
     render(<LoginPage />)
 
     fireEvent.change(screen.getByLabelText(/Email/i), { target: { value: 'test@example.com' } })

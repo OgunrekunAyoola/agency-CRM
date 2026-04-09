@@ -1,6 +1,5 @@
 'use client';
 import { ProtectedRoute } from '@/components/ui/ProtectedRoute';
-import { PageError } from '@/components/ui/PageError';
 
 import { useInvoices, InvoiceStatus } from '@/hooks/queries/useInvoices';
 import { useProjects } from '@/hooks/queries/useProjects';
@@ -16,7 +15,7 @@ import { InvoiceEditModal } from './components/InvoiceEditModal';
 import { Invoice } from '@/hooks/queries/useInvoices';
 
 export default function InvoicesPage() {
-  const { invoices, isLoading, updateStatus, isUpdatingStatus, recordPayment, isRecordingPayment } = useInvoices();
+  const { invoices, isLoading, recordPayment, isRecordingPayment } = useInvoices();
   const { projects } = useProjects();
   
   const [editingInvoice, setEditingInvoice] = useState<Invoice | null>(null);
@@ -29,14 +28,6 @@ export default function InvoicesPage() {
       notes: ''
   });
 
-  const handleMarkAsPaid = async (id: string) => {
-    try {
-      await updateStatus({ id, status: InvoiceStatus.Paid });
-      toast.success('Invoice marked as Paid');
-    } catch {
-      toast.error('Failed to update invoice status');
-    }
-  };
 
   const handleRecordPayment = async (e: React.FormEvent) => {
       e.preventDefault();

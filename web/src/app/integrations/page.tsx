@@ -1,6 +1,6 @@
 'use client';
 
-import { Container, Section, Card, CardHeader, CardTitle, CardContent } from '@/components/ui/LayoutPrimitives';
+import { Container, Section, Card, CardTitle, CardContent } from '@/components/ui/LayoutPrimitives';
 import { Button } from '@/components/ui/Button';
 import { toast } from 'sonner';
 

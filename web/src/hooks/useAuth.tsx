@@ -24,7 +24,7 @@ interface AuthContextType {
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (data: { email: string; fullName: string; agencyName: string; password: string }) => Promise<void>;
-  completeOnboarding: (data: any) => Promise<void>;
+  completeOnboarding: (data: unknown) => Promise<void>;
   logout: () => Promise<void>;
 }
 
@@ -40,7 +40,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       try {
         const data = await api.get<User>('/api/auth/me');
         setUser(data);
-      } catch (err) {
+      } catch {
         // Silently fail if not logged in or token expired
         console.log('Restoration failed or no active session.');
       } finally {
@@ -60,14 +60,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const register = async (data: any) => {
-    const userResponse = await api.post<User>('/api/auth/register', data);
+  const register = async (data: { email: string; fullName: string; agencyName: string; password: string }) => {
+    await api.post<User>('/api/auth/register', data);
     // After registration, we don't have cookies yet unless the API returns tokens or we log in
     // For this flow, let's assume they need to log in or we auto-login
     await login(data.email, data.password);
   };
 
-  const completeOnboarding = async (data: any) => {
+  const completeOnboarding = async (data: unknown) => {
     await api.post('/api/auth/onboarding/complete', data);
     if (user) {
       setUser({ ...user, isOnboardingCompleted: true });

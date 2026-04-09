@@ -1,6 +1,5 @@
 'use client';
 import { ProtectedRoute } from '@/components/ui/ProtectedRoute';
-import { PageError } from '@/components/ui/PageError';
 
 import { useState } from 'react';
 import { useTasks, Task } from '@/hooks/queries/useTasks';

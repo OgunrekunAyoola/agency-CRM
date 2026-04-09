@@ -1,6 +1,5 @@
 'use client';
 import { ProtectedRoute } from '@/components/ui/ProtectedRoute';
-import { PageError } from '@/components/ui/PageError';
 
 import { useState } from 'react';
 import { useContracts, ContractStatus, SuccessFeeType } from '@/hooks/queries/useContracts';

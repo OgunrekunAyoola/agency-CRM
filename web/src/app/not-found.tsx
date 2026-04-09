@@ -17,8 +17,8 @@ export default function NotFound() {
       </h1>
       
       <p className="max-w-md text-lg text-slate-500 mb-10 leading-relaxed">
-        The page you're looking for doesn't exist or has been moved. 
-        Don't worry, your data is safe!
+        The page you&apos;re looking for doesn&apos;t exist or has been moved. 
+        Don&apos;t worry, your data is safe!
       </p>
 
       <div className="flex flex-col sm:flex-row gap-4">

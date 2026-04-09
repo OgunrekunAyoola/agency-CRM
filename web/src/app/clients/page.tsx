@@ -33,8 +33,9 @@ export default function ClientsPage() {
       await createClient(newClient);
       setNewClient({ name: '', legalName: '', vatNumber: '', businessAddress: '', industry: '', priority: PriorityTier.Tier3 });
       setIsModalOpen(false);
-    } catch (err: any) {
-      setFormError(err?.message || 'Failed to create client. Please try again.');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Failed to create client. Please try again.';
+      setFormError(message);
     }
   };
 
@@ -56,7 +57,7 @@ export default function ClientsPage() {
           <select 
             className="border rounded px-3 py-2 bg-background text-sm"
             value={sortBy}
-            onChange={(e) => setSortBy(e.target.value as any)}
+            onChange={(e) => setSortBy(e.target.value as 'name' | 'priority' | 'date')}
           >
             <option value="date">Sort by Date</option>
             <option value="name">Sort by Name</option>

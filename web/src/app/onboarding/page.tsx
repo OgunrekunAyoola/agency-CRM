@@ -5,13 +5,11 @@ import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/LayoutPrimitives';
-import { useRouter } from 'next/navigation';
 
 export default function OnboardingPage() {
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { user, completeOnboarding } = useAuth();
-  const router = useRouter();
 
   const [formData, setFormData] = useState({
     jobTitle: '',
@@ -85,7 +83,7 @@ export default function OnboardingPage() {
             <>
               <CardHeader>
                 <CardTitle className="text-2xl">Tell us about yourself</CardTitle>
-                <CardDescription>We'll use this to set up your personal workspace profile.</CardDescription>
+                <CardDescription>We&apos;ll use this to set up your personal workspace profile.</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="grid grid-cols-2 gap-4">

@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { format, differenceInDays, startOfMonth, addMonths, endOfMonth, isSameDay } from 'date-fns';
+import { format, differenceInDays, startOfMonth, addMonths, endOfMonth } from 'date-fns';
 import { cn } from '@/lib/utils';
 
 interface GanttTask {
@@ -99,7 +99,7 @@ export function GanttChart({ tasks }: GanttChartProps) {
 
           {/* Grid Content */}
           <div className="relative">
-            {tasks.map((task, taskIndex) => {
+            {tasks.map((task) => {
               const startOffset = differenceInDays(task.startDate, chartStart);
               const duration = differenceInDays(task.endDate, task.startDate) + 1;
               

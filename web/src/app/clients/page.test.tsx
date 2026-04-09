@@ -1,7 +1,7 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { render, screen, fireEvent } from '@testing-library/react'
 import ClientsPage from './page'
 import { vi, describe, it, expect } from 'vitest'
-import { useClients, PriorityTier } from '@/hooks/queries/useClients'
+import { useClients } from '@/hooks/queries/useClients'
 
 vi.mock('@/hooks/queries/useClients', () => ({
   useClients: vi.fn(),
@@ -24,12 +24,12 @@ vi.mock('@/hooks/useAuth', () => ({
 
 describe('ClientsPage Component', () => {
   const mockClients = [
-    { id: '1', name: 'Zebra Corp', legalName: 'Zebra Solutions', industry: 'Tech', priority: 0, createdAt: '2024-01-01' },
-    { id: '2', name: 'Alpha Inc', legalName: 'Alpha Ltd', industry: 'Finance', priority: 1, createdAt: '2024-01-02' },
+    { id: '1', name: 'Zebra Corp', legalName: 'Zebra Solutions', industry: 'Tech', priority: 0, createdAt: '2024-01-01', vatNumber: 'VAT1', businessAddress: 'Address 1' },
+    { id: '2', name: 'Alpha Inc', legalName: 'Alpha Ltd', industry: 'Finance', priority: 1, createdAt: '2024-01-02', vatNumber: 'VAT2', businessAddress: 'Address 2' },
   ]
 
   it('renders loading state correctly', () => {
-    (useClients as any).mockReturnValue({ clients: [], isLoading: true })
+    vi.mocked(useClients).mockReturnValue({ clients: [], isLoading: true, isError: false, refetch: vi.fn(), error: null, createClient: vi.fn(), isCreating: false })
     render(<ClientsPage />)
 
     // Animated pulses have bg-muted class
@@ -38,7 +38,7 @@ describe('ClientsPage Component', () => {
   })
 
   it('renders clients table correctly', () => {
-    (useClients as any).mockReturnValue({ clients: mockClients, isLoading: false })
+    vi.mocked(useClients).mockReturnValue({ clients: mockClients, isLoading: false, isError: false, refetch: vi.fn(), error: null, createClient: vi.fn(), isCreating: false })
     render(<ClientsPage />)
 
     expect(screen.getByText('Zebra Corp')).toBeInTheDocument()
@@ -46,7 +46,7 @@ describe('ClientsPage Component', () => {
   })
 
   it('opens modal on "Add Client" click', () => {
-    (useClients as any).mockReturnValue({ clients: mockClients, isLoading: false })
+    vi.mocked(useClients).mockReturnValue({ clients: mockClients, isLoading: false, isError: false, refetch: vi.fn(), error: null, createClient: vi.fn(), isCreating: false })
     render(<ClientsPage />)
 
     fireEvent.click(screen.getByRole('button', { name: /Add Client/i }))
@@ -54,7 +54,7 @@ describe('ClientsPage Component', () => {
   })
 
   it('sorts clients correctly by name', async () => {
-    (useClients as any).mockReturnValue({ clients: mockClients, isLoading: false })
+    vi.mocked(useClients).mockReturnValue({ clients: mockClients, isLoading: false, isError: false, refetch: vi.fn(), error: null, createClient: vi.fn(), isCreating: false })
     render(<ClientsPage />)
 
     fireEvent.change(screen.getByRole('combobox'), { target: { value: 'name' } })

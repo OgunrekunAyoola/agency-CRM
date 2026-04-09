@@ -1,4 +1,4 @@
-import { render, act, screen, renderHook } from '@testing-library/react'
+import { act, renderHook } from '@testing-library/react'
 import { AuthProvider, useAuth } from './useAuth'
 import { vi, describe, it, expect, beforeAll, afterEach, afterAll } from 'vitest'
 import { setupServer } from 'msw/node'

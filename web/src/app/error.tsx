@@ -30,7 +30,7 @@ export default function Error({
       </h1>
       
       <p className="max-w-md text-slate-500 mb-10 leading-relaxed">
-        We encountered an unexpected error. Don't worry, your data hasn't been lost. 
+        We encountered an unexpected error. Don&apos;t worry, your data hasn&apos;t been lost. 
         Please try refreshing the page.
       </p>
 

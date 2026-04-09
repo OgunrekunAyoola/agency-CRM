@@ -67,7 +67,7 @@ export default function ContractPortalPage() {
           </div>
           <h1 className="text-3xl font-bold text-gray-900">Contract Signed!</h1>
           <p className="text-gray-500 mt-4 leading-relaxed">
-            Thank you for choosing our agency. We've received your signature and our team has been notified. 
+            Thank you for choosing our agency. We&apos;ve received your signature and our team has been notified. 
             A copy of the signed agreement will be sent to your email shortly.
           </p>
           <div className="mt-8 pt-8 border-t border-gray-100">

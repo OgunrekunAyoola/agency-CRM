@@ -4,7 +4,6 @@ import LeadsPage from './leads/page'
 import OffersPage from './offers/page'
 import ProjectsPage from './projects/page'
 import InvoicesPage from './invoices/page'
-import ContractsPage from './contracts/page'
 import { vi, describe, it, expect } from 'vitest'
 
 // Mock all necessary hooks

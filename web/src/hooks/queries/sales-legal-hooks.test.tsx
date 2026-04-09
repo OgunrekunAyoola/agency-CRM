@@ -12,9 +12,9 @@ const API_URL = 'http://localhost:8000/api'
 const handlers = [
   http.get(`${API_URL}/offers`, () => HttpResponse.json([{ id: 'O1', title: 'Offer 1' }])),
   http.get(`${API_URL}/contracts`, () => HttpResponse.json([{ id: 'C1', status: 1 }])), // 1 = Signed
-  http.get(`${API_URL}/portal/contracts/:token`, () => HttpResponse.json({ id: 'C1', portalToken: 'test-token' })),
+  http.get(`${API_URL}/portal/contracts/:token`, () => HttpResponse.json({ id: 'C1', title: 'Contract 1', totalAmount: 1000, terms: 'Terms', status: 'Draft', projectId: 'P1', createdAt: new Date().toISOString() })),
   http.post(`${API_URL}/portal/contracts/:token/sign`, () => 
-    HttpResponse.json({ id: 'C1', portalToken: 'test-token', status: 1 }))
+    HttpResponse.json({ id: 'C1', title: 'Contract 1', totalAmount: 1000, terms: 'Terms', status: 'Signed', projectId: 'P1', createdAt: new Date().toISOString(), signedAt: new Date().toISOString() }))
 ]
 
 const server = setupServer(...handlers)
@@ -30,9 +30,11 @@ const createWrapper = () => {
     const queryClient = new QueryClient({
         defaultOptions: { queries: { retry: false } },
     })
-    return ({ children }: { children: React.ReactNode }) => (
+    const Wrapper = ({ children }: { children: React.ReactNode }) => (
         <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
     )
+    Wrapper.displayName = 'QueryClientWrapper';
+    return Wrapper;
 }
 
 describe('Sales & Legal Hooks', () => {
@@ -54,6 +56,6 @@ describe('Sales & Legal Hooks', () => {
         
         await result.current.sign('DigitSig');
         await waitFor(() => expect(result.current.contract).toBeDefined())
-        expect(result.current.contract?.portalToken).toBe(token)
+        expect(result.current.contract?.id).toBe('C1')
     })
 })

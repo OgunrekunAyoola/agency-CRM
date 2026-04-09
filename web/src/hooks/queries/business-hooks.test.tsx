@@ -1,7 +1,7 @@
 import { renderHook, waitFor } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useLeads, LeadStatus } from './useLeads'
-import { useInvoices, InvoiceStatus } from './useInvoices'
+import { useInvoices } from './useInvoices'
 import { vi, describe, it, expect, beforeAll, afterEach, afterAll } from 'vitest'
 import { setupServer } from 'msw/node'
 import { http, HttpResponse } from 'msw'
@@ -11,12 +11,12 @@ const API_URL = 'http://localhost:8000/api'
 const handlers = [
   http.get(`${API_URL}/leads`, () => HttpResponse.json([{ id: 'L1', title: 'Lead 1' }])),
   http.patch(`${API_URL}/leads/:id/status`, async ({ request }) => {
-    const body = await request.json() as any
+    const body = (await request.json()) as { status: number }
     return HttpResponse.json({ id: 'L1', status: body.status })
   }),
   http.get(`${API_URL}/invoices`, () => HttpResponse.json([{ id: 'I1', invoiceNumber: 'INV-1' }])),
   http.post(`${API_URL}/invoices/:id/payments`, async ({ request }) => {
-    const body = await request.json() as any
+    const body = (await request.json()) as { amount: number }
     return HttpResponse.json({ id: 'I1', paidAmount: body.amount, status: 3 }) // 3 = Paid
   })
 ]
@@ -34,9 +34,11 @@ const createWrapper = () => {
     const queryClient = new QueryClient({
         defaultOptions: { queries: { retry: false } },
     })
-    return ({ children }: { children: React.ReactNode }) => (
+    const Wrapper = ({ children }: { children: React.ReactNode }) => (
         <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
     )
+    Wrapper.displayName = 'QueryClientWrapper';
+    return Wrapper;
 }
 
 describe('Business Hooks', () => {
