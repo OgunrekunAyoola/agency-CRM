@@ -48,8 +48,24 @@ export const handlers = [
   // Leads
   http.get(`${API_URL}/leads`, () => {
     return HttpResponse.json([
-      { id: '1', title: 'Mock Lead 1', status: 'New' },
+      { id: '1', title: 'Mock Lead 1', status: 0, companyName: 'Mock Company', contactName: 'John Lead', email: 'lead@example.com', source: 0, interest: 0, dealValue: 5000, probability: 50, createdAt: new Date().toISOString() },
     ])
+  }),
+
+  http.patch(`${API_URL}/leads/:id`, async ({ request }) => {
+    const body = await request.json() as any;
+    return HttpResponse.json({ id: '1', ...body });
+  }),
+
+  // Invoices
+  http.get(`${API_URL}/invoices`, () => {
+    return HttpResponse.json([
+      { id: '1', invoiceNumber: 'INV-001', status: 1, totalAmount: 1200, dueDate: new Date().toISOString(), createdAt: new Date().toISOString() }
+    ])
+  }),
+
+  http.post(`${API_URL}/invoices/:id/pay`, async () => {
+    return HttpResponse.json({ success: true });
   }),
 
   // Auth
@@ -92,17 +108,66 @@ export const handlers = [
     return new HttpResponse(null, { status: 200 })
   }),
 
-  // Projects
+  // Projects & Tasks
   http.get(`${API_URL}/projects`, () => {
     return HttpResponse.json([
-      { id: '1', name: 'Mock Project 1' }
+      { id: '1', name: 'Mock Project 1', status: 'Active', createdAt: new Date().toISOString() }
     ])
   }),
 
-  // Offers
+  http.get(`${API_URL}/tasks`, () => {
+    return HttpResponse.json([
+      { id: '1', title: 'Mock Task 1', status: 'ToDo', priority: 'High', createdAt: new Date().toISOString() }
+    ])
+  }),
+
+  http.get(`${API_URL}/timeentries/project/:id`, () => {
+    return HttpResponse.json([
+      { id: '1', description: 'Working on stuff', durationMinutes: 60, entryDate: new Date().toISOString() }
+    ])
+  }),
+
+  // Offers & Contracts
   http.get(`${API_URL}/offers`, () => {
     return HttpResponse.json([
-      { id: '1', title: 'Mock Offer 1', status: 'Draft' }
+      { id: '1', title: 'Mock Offer 1', status: 0, totalAmount: 5000, createdAt: new Date().toISOString() }
     ])
+  }),
+
+  http.get(`${API_URL}/contracts`, () => {
+    return HttpResponse.json([
+      { id: '1', title: 'Mock Contract 1', status: 0, value: 5000, createdAt: new Date().toISOString() }
+    ])
+  }),
+
+  http.post(`${API_URL}/contracts/:id/sign`, async () => {
+    return HttpResponse.json({ success: true });
+  }),
+
+  // Stats & Analytics
+  http.get(`${API_URL}/stats`, () => {
+    return HttpResponse.json({
+      clients: 2,
+      leads: 1,
+      offers: 1,
+      projects: 1
+    })
+  }),
+
+  http.get(`${API_URL}/adaccounts`, () => {
+    return HttpResponse.json([
+      { id: 'acc_1', name: 'Mock Ad Account', platform: 'Google' }
+    ])
+  }),
+
+  http.get(`${API_URL}/admetrics`, () => {
+    return HttpResponse.json([
+      { id: '1', date: new Date().toISOString(), spend: 500, impressions: 10000, clicks: 500, conversions: 10 }
+    ])
+  }),
+
+  // Automation
+  http.post(`${API_URL}/automation/trigger`, async () => {
+    return HttpResponse.json({ success: true });
   })
 ]

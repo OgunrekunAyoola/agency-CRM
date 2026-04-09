@@ -7,6 +7,9 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     globals: true,
+    env: {
+      NEXT_PUBLIC_API_BASE_URL: 'http://localhost:8000',
+    },
     testTimeout: 30000,
     hookTimeout: 30000,
     teardownTimeout: 30000,

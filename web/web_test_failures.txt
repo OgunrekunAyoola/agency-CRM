@@ -1,0 +1,215 @@
+﻿
+> web@0.1.0 test
+> vitest --reporter=verbose
+
+
+[1m[46m RUN [49m[22m [36mv4.1.0 [39m[90mC:/Users/F MORE/OneDrive/Desktop/agency CRM/web[39m
+
+ [31m×[39m src/hooks/queries/business-hooks.test.tsx[2m > [22mBusiness Hooks[2m > [22museLeads[2m > [22mfetches leads correctly[32m 228[2mms[22m[39m
+[31m   → expected [] to have a length of 1 but got +0[39m
+ [31m×[39m src/hooks/queries/business-hooks.test.tsx[2m > [22mBusiness Hooks[2m > [22museLeads[2m > [22mupdates lead status correctly[32m 56[2mms[22m[39m
+[31m   → fetch failed[39m
+ [31m×[39m src/hooks/queries/business-hooks.test.tsx[2m > [22mBusiness Hooks[2m > [22museInvoices[2m > [22mfetches invoices correctly[32m 105[2mms[22m[39m
+[31m   → expected [] to have a length of 1 but got +0[39m
+ [31m×[39m src/hooks/queries/business-hooks.test.tsx[2m > [22mBusiness Hooks[2m > [22museInvoices[2m > [22mrecords payment and updates status[32m 28[2mms[22m[39m
+[31m   → fetch failed[39m
+ [31m×[39m src/hooks/queries/ads-automation-hooks.test.tsx[2m > [22mAds & Automation Hooks[2m > [22museAdAccounts fetches successfully[33m 1890[2mms[22m[39m
+[31m   → expected [] to have a length of 1 but got +0[39m
+ [31m×[39m src/hooks/queries/ads-automation-hooks.test.tsx[2m > [22mAds & Automation Hooks[2m > [22museAdMetrics fetches analytics successfully[32m 88[2mms[22m[39m
+[31m   → expected undefined to be 1000 // Object.is equality[39m
+ [31m×[39m src/hooks/queries/ads-automation-hooks.test.tsx[2m > [22mAds & Automation Hooks[2m > [22museAutomation triggers successfully[32m 134[2mms[22m[39m
+[31m   → fetch failed[39m
+ [31m×[39m src/hooks/queries/project-monitoring-hooks.test.tsx[2m > [22mProject Monitoring Hooks[2m > [22museProjects fetches successfully[33m 373[2mms[22m[39m
+[31m   → expected [] to have a length of 1 but got +0[39m
+ [31m×[39m src/hooks/queries/project-monitoring-hooks.test.tsx[2m > [22mProject Monitoring Hooks[2m > [22museTasks fetches successfully[32m 91[2mms[22m[39m
+[31m   → expected [] to have a length of 1 but got +0[39m
+ [31m×[39m src/hooks/queries/project-monitoring-hooks.test.tsx[2m > [22mProject Monitoring Hooks[2m > [22museStats fetches successfully[32m 82[2mms[22m[39m
+[31m   → expected undefined to be 10 // Object.is equality[39m
+ [31m×[39m src/hooks/queries/project-monitoring-hooks.test.tsx[2m > [22mProject Monitoring Hooks[2m > [22museTimeEntries fetches successfully[32m 76[2mms[22m[39m
+[31m   → expected [] to have a length of 1 but got +0[39m
+[90mstdout[2m | src/hooks/useAuth.test.tsx[2m > [22m[2museAuth Hook[2m > [22m[2mlogs in successfully and updates user state
+[22m[39mRestoration failed or no active session.
+
+[90mstdout[2m | src/hooks/useAuth.test.tsx[2m > [22m[2museAuth Hook[2m > [22m[2mlogs out successfully and clears user state
+[22m[39mRestoration failed or no active session.
+
+ [31m×[39m src/hooks/useAuth.test.tsx[2m > [22museAuth Hook[2m > [22mlogs in successfully and updates user state[33m 327[2mms[22m[39m
+[31m   → fetch failed[39m
+ [31m×[39m src/hooks/useAuth.test.tsx[2m > [22museAuth Hook[2m > [22mlogs out successfully and clears user state[32m 84[2mms[22m[39m
+[31m   → fetch failed[39m
+ [31m×[39m src/hooks/queries/sales-legal-hooks.test.tsx[2m > [22mSales & Legal Hooks[2m > [22museOffers fetches successfully[33m 433[2mms[22m[39m
+[31m   → expected [] to have a length of 1 but got +0[39m
+ [31m×[39m src/hooks/queries/sales-legal-hooks.test.tsx[2m > [22mSales & Legal Hooks[2m > [22museContracts fetches successfully[32m 96[2mms[22m[39m
+[31m   → expected [] to have a length of 1 but got +0[39m
+ [31m×[39m src/hooks/queries/sales-legal-hooks.test.tsx[2m > [22mSales & Legal Hooks[2m > [22museContractPortal signs successfully[32m 97[2mms[22m[39m
+[31m   → fetch failed[39m
+ [31m×[39m src/hooks/queries/useClients.test.tsx[2m > [22museClients Hook[2m > [22mfetches clients successfully[32m 228[2mms[22m[39m
+[31m   → expected [] to have a length of 2 but got +0[39m
+ [31m×[39m src/hooks/queries/useClients.test.tsx[2m > [22museClients Hook[2m > [22mcreates a new client and handles mutation[32m 81[2mms[22m[39m
+[31m   → fetch failed[39m
+ [31m×[39m src/app/clients/page.test.tsx[2m > [22mClientsPage Component[2m > [22mrenders loading state correctly[32m 87[2mms[22m[39m
+[31m   → useAuth must be used within an AuthProvider[39m
+ [31m×[39m src/app/clients/page.test.tsx[2m > [22mClientsPage Component[2m > [22mrenders clients table correctly[32m 38[2mms[22m[39m
+[31m   → useAuth must be used within an AuthProvider[39m
+ [31m×[39m src/app/clients/page.test.tsx[2m > [22mClientsPage Component[2m > [22mopens modal on "Add Client" click[32m 17[2mms[22m[39m
+[31m   → useAuth must be used within an AuthProvider[39m
+ [31m×[39m src/app/clients/page.test.tsx[2m > [22mClientsPage Component[2m > [22msorts clients correctly by name[32m 15[2mms[22m[39m
+[31m   → useAuth must be used within an AuthProvider[39m
+ [31m×[39m src/components/ui/primitives.test.tsx[2m > [22mUI Primitives[2m > [22mInput[2m > [22mrenders with label and handles change[32m 242[2mms[22m[39m
+[31m   → Found a label with the text of: Test Label, however no form control was found associated to that label. Make sure you're using the "for" attribute or "aria-labelledby" attribute correctly.
+
+Ignored nodes: comments, script, style
+[36m<body>[31m
+  [36m<div>[31m
+    [36m<div[31m
+      [33mclass[31m=[32m"w-full space-y-1.5"[31m
+    [36m>[31m
+      [36m<label[31m
+        [33mclass[31m=[32m"text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"[31m
+      [36m>[31m
+        [0mTest Label[0m
+      [36m</label>[31m
+      [36m<input[31m
+        [33mclass[31m=[32m"flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50  "[31m
+        [33mvalue[31m=[32m""[31m
+      [36m/>[31m
+    [36m</div>[31m
+  [36m</div>[31m
+[36m</body>[31m[39m
+ [32m✓[39m src/components/ui/primitives.test.tsx[2m > [22mUI Primitives[2m > [22mSelect[2m > [22mrenders options correctly[32m 45[2mms[22m[39m
+ [32m✓[39m src/components/ui/primitives.test.tsx[2m > [22mUI Primitives[2m > [22mModal[2m > [22mdoes not render when closed[32m 25[2mms[22m[39m
+ [32m✓[39m src/components/ui/primitives.test.tsx[2m > [22mUI Primitives[2m > [22mModal[2m > [22mrenders when open[32m 47[2mms[22m[39m
+ [32m✓[39m src/components/ui/primitives.test.tsx[2m > [22mUI Primitives[2m > [22mTable[2m > [22mrenders table structure correctly[32m 27[2mms[22m[39m
+ [31m×[39m src/app/login/page.test.tsx[2m > [22mLoginPage Component[2m > [22mrenders login form correctly[32m 254[2mms[22m[39m
+[31m   → Unable to find a label with the text of: /Email Address/i
+
+Ignored nodes: comments, script, style
+[36m<body>[31m
+  [36m<div>[31m
+    [36m<div[31m
+      [33mclass[31m=[32m"flex min-h-[calc(100vh-64px)] items-center justify-center p-6 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-50 via-slate-100 to-slate-200"[31m
+    [36m>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"w-full max-w-md space-y-8"[31m
+      [36m>[31m
+        [36m<div[31m
+          [33mclass[31m=[32m"text-center space-y-2"[31m
+        [36m>[31m
+          [36m<h1[31m
+            [33mclass[31m=[32m"text-4xl font-extrabold tracking-tight text-slate-900 lg:text-5xl"[31m
+          [36m>[31m
+            [0mAgency CRM[0m
+          [36m</h1>[31m
+          [36m<p[31m
+            [33mclass[31m=[32m"text-lg text-slate-600"[31m
+          [36m>[31m
+            [0mPrecision growth for digital agencies.[0m
+          [36m</p>[31m
+        [36m</div>[31m
+        [36m<div[31m
+          [33mclass[31m=[32m"rounded-xl border border-border bg-card text-card-foreground shadow-sm border-none shadow-2xl bg-white/80 backdrop-blur-sm"[31m
+        [36m>[31m
+          [36m<div[31m
+            [33mclass[31m=[32m"flex flex-col space-y-1.5 p-6 space-y-1 pb-4"[31m
+          [36m>[31m
+            [36m<h3[31m
+              [33mclass[31m=[32m"text-2xl font-semibold leading-none tracking-tight text-2xl font-bold text-center"[31m
+            [36m>[31m
+              [0mSign In[0m
+            [36m</h3>[31m
+            [36m<p[31m
+              [33mclass[31m=[32m"text-sm text-slate-500 text-center"[31m
+            [36m>[31m
+              [0mWelcome back. Enter your credentials to access your dashboard.[0m
+            [36m</p>[31m
+          [36m</div>[31m
+          [36m<div[31m
+            [33mclass[31m=[32m"p-6 pt-0 "[31m
+          [36m>[31m
+            [36m<form[31m
+              [33mclass[31m=[32m"space-y-4"[31m
+            [36m>[31m
+              [36m<div[31m
+                [33mclass[31m=[32m"w-full space-y-1.5"[31m
+              [36m>[31m
+                [36m<label[31m
+                  [33mclass[31m=[32m"text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"[31m
+                [36m>[31m
+                  [0mEmail[0m
+                [36m</label>[31m
+                [36m<input[31m
+                  [33mclass[31m=[32m"flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50  bg-slate-50 border-slate-200 focus:ring-blue-500"[31m
+                  [33mplaceholder[31m=[32m"alex@agency.com"[31m
+                  [33mrequired[31m=[32m""[31m
+                  [33mtype[31m=[32m"email"[31m
+                  [33mvalue[31m=[32m""[31m
+                [36m/>[31m
+              [36m</div>[31m
+              [36m<div[31m
+                [33mclass[31m=[32m"w-full space-y-1.5"[31m
+              [36m>[31m
+                [36m<label[31m
+                  [33mclass[31m=[32m"text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"[31m
+                [36m>[31m
+                  [0mPassword[0m
+                [36m</label>[31m
+                [36m<input[31m
+                  [33mclass[31m=[32m"flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50  bg-slate-50 border-slate-200 focus:ring-blue-500"[31m
+                  [33mplaceholder[31m=[32m"••••••••"[31m
+                  [33mrequired[31m=[32m""[31m
+                  [33mtype[31m=[32m"password"[31m
+                  [33mvalue[31m=[32m""[31m
+                [36m/>[31m
+              [36m</div>[31m
+              [36m<button[31m
+                [33mclass[31m=[32m"inline-flex items-center justify-center rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 w-full h-11 text-base font-semibold transition-all transform hover:scale-[1.01]"[31m
+                [33mtype[31m=[32m"submit"[31m
+              [36m>[31m
+                [0mSign In[0m
+              [36m</button>[31m
+            [36m</form>[31m
+            [36m<div[31m
+              [33mclass[31m=[32m"mt-6 text-center text-sm text-slate-600"[31m
+            [36m>[31m
+              [0mDon't have an account?[0m
+              [0m [0m
+              [36m<a[31m
+                [33mclass[31m=[32m"font-semibold text-blue-600 hover:text-blue-500 transition-colors"[31m
+                [33mhref[31m=[32m"/register"[31m
+              [36m>[31m
+                [0mStart your 14-day free trial[0m
+              [36m</a>[31m
+            [36m</div>[31m
+          [36m</div>[31m
+        [36m</div>[31m
+        [36m<p[31m
+          [33mclass[31m=[32m"text-center text-xs text-slate-400"[31m
+        [36m>[31m
+          [0m© 2026 Agency CRM. All rights reserved.[0m
+        [36m</p>[31m
+      [36m</div>[31m
+    [36m</div>[31m
+  [36m</div>[31m
+[36m</body>[31m[39m
+ [31m×[39m src/app/login/page.test.tsx[2m > [22mLoginPage Component[2m > [22mcalls login function on form submission[32m 3[2mms[22m[39m
+[31m   → Cannot access 'mockLogin' before initialization[39m
+ [31m×[39m src/app/login/page.test.tsx[2m > [22mLoginPage Component[2m > [22mdisplays error message on failed login[32m 2[2mms[22m[39m
+[31m   → Cannot access 'mockLogin' before initialization[39m
+ [32m✓[39m src/components/ui/Button.test.tsx[2m > [22mButton Component[2m > [22mrenders with children correctly[32m 163[2mms[22m[39m
+ [32m✓[39m src/components/ui/Button.test.tsx[2m > [22mButton Component[2m > [22mhandles onClick events[32m 39[2mms[22m[39m
+ [32m✓[39m src/components/ui/Button.test.tsx[2m > [22mButton Component[2m > [22mshows loading spinner and disables when isLoading is true[33m 605[2mms[22m[39m
+ [32m✓[39m src/components/ui/Button.test.tsx[2m > [22mButton Component[2m > [22mapplies correct variant styles[32m 140[2mms[22m[39m
+ [32m✓[39m src/components/ui/GanttChart.test.tsx[2m > [22mGanttChart Component[2m > [22mrenders empty matching state when no tasks provided[32m 127[2mms[22m[39m
+ [32m✓[39m src/components/ui/GanttChart.test.tsx[2m > [22mGanttChart Component[2m > [22mrenders tasks correctly on the timeline[33m 315[2mms[22m[39m
+ [32m✓[39m src/components/ui/GanttChart.test.tsx[2m > [22mGanttChart Component[2m > [22mcalculates date headers correctly[32m 113[2mms[22m[39m
+ [32m✓[39m src/lib/api.test.ts[2m > [22mapiRequest[2m > [22mshould handle successful responses[32m 15[2mms[22m[39m
+ [32m✓[39m src/lib/api.test.ts[2m > [22mapiRequest[2m > [22mshould throw error on failure[33m 345[2mms[22m[39m
+ [32m✓[39m src/components/ui/layout.test.tsx[2m > [22mAdvanced UI Primitives[2m > [22mBreadcrumbs[2m > [22mrenders correct hierarchy based on pathname[32m 148[2mms[22m[39m
+ [32m✓[39m src/components/ui/layout.test.tsx[2m > [22mAdvanced UI Primitives[2m > [22mLayoutPrimitives[2m > [22mrenders Card components correctly[32m 18[2mms[22m[39m
+ [32m✓[39m src/components/ui/layout.test.tsx[2m > [22mAdvanced UI Primitives[2m > [22mLayoutPrimitives[2m > [22mrenders Container and Section with correct structure[32m 11[2mms[22m[39m
+
+[2m Test Files [22m [1m[31m10 failed[39m[22m[2m | [22m[1m[32m4 passed[39m[22m[90m (14)[39m
+[2m      Tests [22m [1m[31m26 failed[39m[22m[2m | [22m[1m[32m16 passed[39m[22m[90m (42)[39m
+[2m   Start at [22m 22:26:29
+[2m   Duration [22m 77.57s[2m (transform 7.65s, setup 36.84s, import 33.57s, tests 7.55s, environment 102.75s)[22m
+

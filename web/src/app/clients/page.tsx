@@ -10,6 +10,7 @@ import { Modal } from '@/components/ui/Modal';
 import { ProtectedRoute } from '@/components/ui/ProtectedRoute';
 import { PageError } from '@/components/ui/PageError';
 import { EmptyState } from '@/components/ui/EmptyState';
+import Link from 'next/link';
 
 export default function ClientsPage() {
   const { clients, isLoading, isError, refetch, createClient, isCreating } = useClients();
@@ -93,8 +94,15 @@ export default function ClientsPage() {
               {sortedClients.map((c) => (
                 <TableRow key={c.id}>
                   <TableCell>
-                    <div className="font-medium">{c.name}</div>
-                    <div className="text-xs text-muted-foreground">{c.legalName}</div>
+                    <Link 
+                      href={`/clients/${c.id}`}
+                      className="group block"
+                    >
+                      <div className="font-semibold text-slate-900 group-hover:text-blue-600 transition-colors">
+                        {c.name}
+                      </div>
+                      <div className="text-xs text-muted-foreground">{c.legalName}</div>
+                    </Link>
                   </TableCell>
                   <TableCell>
                     <span className="text-sm">{c.industry || '-'}</span>

@@ -15,6 +15,13 @@ vi.mock('@/hooks/queries/useClients', () => ({
   },
 }))
 
+vi.mock('@/hooks/useAuth', () => ({
+  useAuth: () => ({
+    user: { id: '1', role: 'Admin' },
+    loading: false
+  }),
+}))
+
 describe('ClientsPage Component', () => {
   const mockClients = [
     { id: '1', name: 'Zebra Corp', legalName: 'Zebra Solutions', industry: 'Tech', priority: 0, createdAt: '2024-01-01' },
@@ -58,3 +65,12 @@ describe('ClientsPage Component', () => {
     expect(rows[2]).toHaveTextContent('Zebra Corp')
   })
 })
+
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({
+    push: vi.fn(),
+    replace: vi.fn(),
+    prefetch: vi.fn()
+  }),
+  usePathname: () => '/'
+}))

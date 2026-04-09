@@ -52,7 +52,8 @@ describe('Sales & Legal Hooks', () => {
         const token = 'test-token'
         const { result } = renderHook(() => useContractPortal(token), { wrapper: createWrapper() })
         
-        await result.current.sign('DigitSig')
+        await result.current.sign('DigitSig');
+        await waitFor(() => expect(result.current.contract).toBeDefined())
         expect(result.current.contract?.portalToken).toBe(token)
     })
 })

@@ -45,3 +45,11 @@ export const useClients = () => {
     isCreating: createClientMutation.isPending,
   };
 };
+
+export const useClient = (id: string) => {
+  return useQuery({
+    queryKey: ['clients', id],
+    queryFn: () => api.get<Client>(`/api/clients/${id}`),
+    enabled: !!id,
+  });
+};

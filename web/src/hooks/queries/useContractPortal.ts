@@ -17,13 +17,13 @@ export function useContractPortal(token: string) {
 
   const contractQuery = useQuery({
     queryKey: ['portal-contract', token],
-    queryFn: () => api.get<PortalContract>(`/portal/contracts/${token}`),
+    queryFn: () => api.get<PortalContract>(`/api/portal/contracts/${token}`),
     enabled: !!token,
   });
 
   const signMutation = useMutation({
     mutationFn: (digitalSignature: string) => 
-      api.post<PortalContract>(`/portal/contracts/${token}/sign`, {
+      api.post<PortalContract>(`/api/portal/contracts/${token}/sign`, {
         digitalSignature,
       }),
     onSuccess: () => {
@@ -32,7 +32,7 @@ export function useContractPortal(token: string) {
   });
 
   const viewMutation = useMutation({
-    mutationFn: () => api.post(`/portal/contracts/${token}/view`, {}),
+    mutationFn: () => api.post(`/api/portal/contracts/${token}/view`, {}),
   });
 
   return {

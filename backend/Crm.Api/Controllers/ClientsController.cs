@@ -26,6 +26,14 @@ public class ClientsController : ControllerBase
         return Ok(clients);
     }
 
+    [HttpGet("{id}")]
+    public async Task<ActionResult<ClientResponse>> GetClient(Guid id)
+    {
+        var client = await _clientService.GetByIdAsync(id);
+        if (client == null) return NotFound();
+        return Ok(client);
+    }
+
     [HttpPost]
     public async Task<ActionResult<ClientResponse>> CreateClient(CreateClientRequest request)
     {

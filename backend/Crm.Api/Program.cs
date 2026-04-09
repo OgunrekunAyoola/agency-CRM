@@ -23,6 +23,25 @@ var builder = WebApplication.CreateBuilder(args);
 // Resolve Connection String & Provider
 var rawDatabaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
 var isUsingRailway = !string.IsNullOrEmpty(rawDatabaseUrl);
+var isProduction = builder.Environment.IsProduction() || isUsingRailway;
+
+// Strict Production check: 
+if (isProduction && string.IsNullOrEmpty(Environment.GetEnvironmentVariable("JWT_KEY")) && builder.Configuration["Jwt:Key"]?.Contains("_development_") == true)
+{
+    throw new InvalidOperationException("CRITICAL ERROR: Application is starting in Production but using a development JWT key. Termination prevented security breach.");
+}
+
+// Rate Limiting Configuration
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    options.AddFixedWindowLimiter("fixed", opt =>
+    {
+        opt.Window = TimeSpan.FromSeconds(10);
+        opt.PermitLimit = 100; // 100 requests per 10 seconds per IP
+        opt.QueueLimit = 0;
+    });
+});
 
 // If no production URL is found, we assume we're in 'Local First' mode unless explicitly told otherwise.
 bool useSqlite = !isUsingRailway || builder.Configuration["Database:Provider"] == "Sqlite";
@@ -269,6 +288,8 @@ app.UseCors("DefaultPolicy");
 
 // Global Exception Handling (RFC 7807)
 app.UseMiddleware<GlobalExceptionMiddleware>();
+
+app.UseRateLimiter();
 
 app.UseAuthentication();
 app.UseAuthorization();

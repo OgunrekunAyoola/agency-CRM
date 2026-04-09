@@ -31,6 +31,24 @@ public class ClientService
         }).ToList();
     }
 
+    public async Task<ClientResponse?> GetByIdAsync(Guid id)
+    {
+        var client = await _repository.GetByIdAsync(id);
+        if (client == null) return null;
+
+        return new ClientResponse
+        {
+            Id = client.Id,
+            Name = client.Name,
+            LegalName = client.LegalName,
+            VatNumber = client.VatNumber,
+            BusinessAddress = client.BusinessAddress,
+            Industry = client.Industry,
+            Priority = client.Priority,
+            CreatedAt = client.CreatedAt
+        };
+    }
+
     public async Task<ClientResponse> CreateAsync(CreateClientRequest request)
     {
         var client = new Client

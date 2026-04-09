@@ -13,8 +13,10 @@ const API_URL = 'http://localhost:8000/api'
 const handlers = [
   http.get(`${API_URL}/projects`, () => HttpResponse.json([{ id: 'P1', name: 'Project 1' }])),
   http.get(`${API_URL}/tasks`, () => HttpResponse.json([{ id: 'T1', title: 'Task 1' }])),
-  http.get(`${API_URL}/stats`, () => HttpResponse.json({ clientsCount: 10, revenueTotal: 50000 })),
-  http.get(`${API_URL}/timeentries`, () => HttpResponse.json([{ id: 'TE1', hours: 5 }]))
+  http.get(`${API_URL}/clients`, () => HttpResponse.json(new Array(10).fill({ id: '1' }))),
+  http.get(`${API_URL}/leads`, () => HttpResponse.json([])),
+  http.get(`${API_URL}/offers`, () => HttpResponse.json([])),
+  http.get(`${API_URL}/timeentries/project/:id`, () => HttpResponse.json([{ id: 'TE1', hours: 5 }]))
 ]
 
 const server = setupServer(...handlers)

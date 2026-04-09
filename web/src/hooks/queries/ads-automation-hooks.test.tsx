@@ -10,9 +10,9 @@ import { http, HttpResponse } from 'msw'
 const API_URL = 'http://localhost:8000/api'
 
 const handlers = [
-  http.get(`${API_URL}/projectadaccounts`, () => HttpResponse.json([{ id: 'A1', platform: 0, name: 'FB Ads' }])),
+  http.get(`${API_URL}/projects/:id/adaccounts`, () => HttpResponse.json([{ id: 'A1', platform: 0, name: 'FB Ads' }])),
   http.get(`${API_URL}/admetrics/analytics`, () => HttpResponse.json({ totalSpend: 1000, totalImpressions: 50000 })),
-  http.post(`${API_URL}/automation/trigger`, () => new HttpResponse(null, { status: 204 }))
+  http.post(`${API_URL}/automation/trigger-overdue-check`, () => new HttpResponse(null, { status: 204 }))
 ]
 
 const server = setupServer(...handlers)

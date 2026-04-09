@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useStats } from '@/hooks/queries/useStats';
 import { useInvoices, InvoiceStatus } from '@/hooks/queries/useInvoices';
 import { useAdMetrics } from '@/hooks/queries/useAdMetrics';
@@ -90,17 +91,17 @@ export default function DashboardPage() {
           </Card>
 
           {statCards.slice(0, 4).map((stat) => (
-            <Card key={stat.title} className="hover:shadow-md transition-shadow">
-              <a href={stat.link} className="block">
+            <Card key={stat.title} className="hover:shadow-md transition-shadow group cursor-pointer">
+              <Link href={stat.link} className="block">
                 <CardHeader>
-                  <CardTitle className="text-sm font-medium text-muted-foreground">
+                  <CardTitle className="text-sm font-medium text-muted-foreground group-hover:text-blue-600 transition-colors">
                     {stat.title}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className={`text-2xl font-bold ${stat.color}`}>{stat.value}</div>
                 </CardContent>
-              </a>
+              </Link>
             </Card>
           ))}
         </div>

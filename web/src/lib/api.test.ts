@@ -13,6 +13,7 @@ describe('apiRequest', () => {
     ;(fetch as Mock).mockResolvedValue({
       ok: true,
       json: () => Promise.resolve(mockData),
+      text: () => Promise.resolve(JSON.stringify(mockData)),
     })
 
     const result = await apiRequest('/test')
