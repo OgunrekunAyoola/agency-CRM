@@ -54,11 +54,11 @@ public class ClientService
         var client = new Client
         {
             Id = Guid.NewGuid(),
-            Name = request.Name,
-            LegalName = request.LegalName,
-            VatNumber = request.VatNumber,
-            BusinessAddress = request.BusinessAddress,
-            Industry = request.Industry,
+            Name = request.Name ?? string.Empty,
+            LegalName = request.LegalName ?? string.Empty,
+            VatNumber = request.VatNumber ?? string.Empty,
+            BusinessAddress = request.BusinessAddress ?? string.Empty,
+            Industry = request.Industry ?? string.Empty,
             Priority = request.Priority,
             TenantId = _currentUserContext.TenantId ?? Guid.Empty
         };

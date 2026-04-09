@@ -112,6 +112,7 @@ public static class DbInitializer
                 Status = (LeadStatus)(i % 4),
                 Probability = 20 + (i * 5) % 80,
                 DealValue = 5000 + (i * 1500),
+                BudgetRange = "$5k - $20k",
                 TenantId = tenantAId
             };
             await context.Leads.AddAsync(lead);
@@ -160,6 +161,7 @@ public static class DbInitializer
                 Status = (LeadStatus)(i % 4),
                 Probability = 10 + (i * 10) % 90,
                 DealValue = 3000 + (i * 2000),
+                BudgetRange = "$3k - $15k",
                 TenantId = tenantBId
             };
             await context.Leads.AddAsync(lead);

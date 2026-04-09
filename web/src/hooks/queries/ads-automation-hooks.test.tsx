@@ -8,11 +8,14 @@ import { setupServer } from 'msw/node'
 import { http, HttpResponse } from 'msw'
 
 const API_URL = 'http://localhost:8000/api'
+const BASE_URL = 'http://localhost:8000'
 
 const handlers = [
   http.get(`${API_URL}/projects/:id/adaccounts`, () => HttpResponse.json([{ id: 'A1', platform: 0, name: 'FB Ads' }])),
   http.get(`${API_URL}/admetrics/analytics`, () => HttpResponse.json({ totalSpend: 1000, totalImpressions: 50000 })),
-  http.post(`${API_URL}/automation/trigger-overdue-check`, () => new HttpResponse(null, { status: 204 }))
+  http.get(`${API_URL}/admetrics`, () => HttpResponse.json([])),
+  http.post(`${BASE_URL}/automation/trigger-overdue-check`, () => new HttpResponse(null, { status: 204 })),
+  http.get(`${BASE_URL}/automation/templates`, () => HttpResponse.json([]))
 ]
 
 const server = setupServer(...handlers)

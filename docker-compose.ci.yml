@@ -30,7 +30,8 @@ services:
       sh -c "dotnet test AgencyCrm.sln --verbosity normal --logger 'console;verbosity=detailed'"
 
   web-test:
-    image: node:20-alpine
+    image: node:20-bullseye-slim
+    shm_size: 2gb
     working_dir: /app
     volumes:
       - ./web:/app

@@ -34,8 +34,8 @@ public class ProjectService
         var project = new Project
         {
             Id = Guid.NewGuid(),
-            Name = request.Name,
-            Description = request.Description,
+            Name = request.Name ?? string.Empty,
+            Description = request.Description ?? string.Empty,
             ClientId = request.ClientId,
             OfferId = request.OfferId,
             TenantId = _currentUserContext.TenantId ?? Guid.Empty

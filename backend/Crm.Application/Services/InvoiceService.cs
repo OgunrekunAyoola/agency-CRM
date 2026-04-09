@@ -35,6 +35,9 @@ public class InvoiceService : IInvoiceService
 
     public async Task<InvoiceResponse> CreateAsync(CreateInvoiceRequest request)
     {
+        var project = await _projectRepository.GetByIdAsync(request.ProjectId)
+            ?? throw new KeyNotFoundException("Project not found");
+
         var invoice = new Invoice
         {
             Id = Guid.NewGuid(),
@@ -44,6 +47,7 @@ public class InvoiceService : IInvoiceService
             DueDate = request.DueDate,
             ContractId = request.ContractId,
             ProjectId = request.ProjectId,
+            ClientId = project.ClientId ?? Guid.Empty, // Populate ClientId from Project
             Status = InvoiceStatus.Draft,
             Items = request.Items?.Select(i => new InvoiceItem
             {
@@ -148,6 +152,7 @@ public class InvoiceService : IInvoiceService
             DueDate = DateTime.UtcNow.AddDays(30),
             ContractId = contractId,
             ProjectId = contract.ProjectId,
+            ClientId = contract.ClientId,
             Status = InvoiceStatus.Draft,
             Items = items
         };
@@ -173,6 +178,7 @@ public class InvoiceService : IInvoiceService
             Currency = "USD",
             DueDate = DateTime.UtcNow.AddDays(14),
             ProjectId = projectId,
+            ClientId = project.ClientId ?? Guid.Empty,
             Status = InvoiceStatus.Draft,
             Items = new List<InvoiceItem>
             {

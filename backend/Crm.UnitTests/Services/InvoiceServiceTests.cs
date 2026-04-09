@@ -40,6 +40,10 @@ public class InvoiceServiceTests
     {
         // Arrange
         var request = _fixture.Create<CreateInvoiceRequest>();
+        var project = _fixture.Build<Project>()
+            .With(p => p.Id, request.ProjectId)
+            .Create();
+        _projectRepositoryMock.Setup(r => r.GetByIdAsync(request.ProjectId)).ReturnsAsync(project);
 
         // Act
         var result = await _service.CreateAsync(request);

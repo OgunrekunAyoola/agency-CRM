@@ -17,8 +17,8 @@ public class AuthControllerTests : BaseIntegrationTest
         // Arrange
         var request = new LoginRequest 
         { 
-            Email = "admin@example.com", 
-            Password = "AdminPassword123!" 
+            Email = "admin@tenanta.com", 
+            Password = "Admin123!" 
         };
 
         // Act

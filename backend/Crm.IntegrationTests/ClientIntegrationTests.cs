@@ -19,7 +19,6 @@ using Crm.Infrastructure.Data;
 using System.Net.Http.Headers;
 
 namespace Crm.IntegrationTests;
-
 public class ClientIntegrationTests : BaseIntegrationTest
 {
     public ClientIntegrationTests(CrmWebApplicationFactory factory) : base(factory) { }
@@ -45,7 +44,17 @@ public class ClientIntegrationTests : BaseIntegrationTest
         var client = await clientResp.Content.ReadFromJsonAsync<ClientResponse>();
 
         // 2. Create Lead
-        var leadReq = new { Title = "Test Lead", Description = "Lead Desc", ClientId = client!.Id };
+        var leadReq = new 
+        { 
+            Title = "Test Lead", 
+            Description = "Lead Desc", 
+            ClientId = client!.Id,
+            ContactName = "John Test",
+            CompanyName = "Test Corp",
+            Email = "test@example.com",
+            Phone = "123456789",
+            BudgetRange = "$1k - $5k"
+        };
         var leadResp = await _client.PostAsJsonAsync("/api/leads", leadReq);
         await CheckSuccessAsync(leadResp);
         var lead = await leadResp.Content.ReadFromJsonAsync<LeadResponse>();
@@ -126,7 +135,16 @@ public class ClientIntegrationTests : BaseIntegrationTest
         await CheckSuccessAsync(clientResp);
         var client = await clientResp.Content.ReadFromJsonAsync<ClientResponse>();
 
-        var leadReq = new { Title = "Invoice Lead", ClientId = client!.Id };
+        var leadReq = new 
+        { 
+            Title = "Invoice Lead", 
+            ClientId = client!.Id,
+            ContactName = "Jane Test",
+            CompanyName = "Invoice Corp",
+            Email = "jane@example.com",
+            Phone = "987654321",
+            BudgetRange = "$5k - $10k"
+        };
         var leadResp = await _client.PostAsJsonAsync("/api/leads", leadReq);
         var lead = await leadResp.Content.ReadFromJsonAsync<LeadResponse>();
 
@@ -175,7 +193,16 @@ public class ClientIntegrationTests : BaseIntegrationTest
         await CheckSuccessAsync(clientResp);
         var client = await clientResp.Content.ReadFromJsonAsync<ClientResponse>();
 
-        var leadReq = new { Title = "Metrics Lead", ClientId = client!.Id };
+        var leadReq = new 
+        { 
+            Title = "Metrics Lead", 
+            ClientId = client!.Id,
+            ContactName = "Metric Man",
+            CompanyName = "Metrics Inc",
+            Email = "metrics@example.com",
+            Phone = "555-METRIC",
+            BudgetRange = "$10k+"
+        };
         var leadResp = await _client.PostAsJsonAsync("/api/leads", leadReq);
         var lead = await leadResp.Content.ReadFromJsonAsync<LeadResponse>();
 

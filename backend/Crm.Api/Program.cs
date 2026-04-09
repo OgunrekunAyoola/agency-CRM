@@ -17,6 +17,7 @@ using System.Diagnostics;
 using System.Linq;
 using Microsoft.AspNetCore.HttpOverrides;
 using Crm.Api.Middleware;
+using Microsoft.AspNetCore.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 

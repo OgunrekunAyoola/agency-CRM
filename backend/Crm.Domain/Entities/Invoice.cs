@@ -32,7 +32,7 @@ public class Invoice : BaseEntity, ITenantedEntity
     public ICollection<Payment> Payments { get; set; } = new List<Payment>();
 }
 
-public class InvoiceItem : BaseEntity
+public class InvoiceItem : BaseEntity, ITenantedEntity
 {
     public string Description { get; set; } = string.Empty;
     public decimal Quantity { get; set; }
@@ -40,4 +40,5 @@ public class InvoiceItem : BaseEntity
     public decimal Amount => Quantity * UnitPrice;
     
     public Guid InvoiceId { get; set; }
+    public Guid TenantId { get; set; }
 }

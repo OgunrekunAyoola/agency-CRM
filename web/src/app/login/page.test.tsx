@@ -52,11 +52,19 @@ describe('LoginPage Component', () => {
   })
 
   it('displays error message on failed login', async () => {
-    mockLogin.mockRejectedValue(new Error('Invalid credentials'))
+    mockLogin.mockRejectedValue({ 
+      response: { data: { message: 'Invalid credentials' } } 
+    })
     render(<LoginPage />)
 
-    fireEvent.click(screen.getByRole('button', { name: /Sign In/i }))
-
+    fireEvent.change(screen.getByLabelText(/Email/i), { target: { value: 'test@example.com' } })
+    fireEvent.change(screen.getByLabelText(/Password/i), { target: { value: 'wrong' } })
+    
+    // Use role for button to be sure
+    const submitButton = screen.getByRole('button', { name: /Sign In/i })
+    fireEvent.click(submitButton)
+    
+    // The component displays the error after the promise rejects
     expect(await screen.findByText(/Invalid credentials/i)).toBeInTheDocument()
   })
 })

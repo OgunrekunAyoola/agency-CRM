@@ -42,15 +42,15 @@ public class LeadService
         var lead = new Lead
         {
             Id = Guid.NewGuid(),
-            Title = request.Title,
-            Description = request.Description,
-            ContactName = request.ContactName,
-            CompanyName = request.CompanyName,
-            Email = request.Email,
-            Phone = request.Phone,
+            Title = request.Title ?? string.Empty,
+            Description = request.Description ?? string.Empty,
+            ContactName = request.ContactName ?? string.Empty,
+            CompanyName = request.CompanyName ?? string.Empty,
+            Email = request.Email ?? string.Empty,
+            Phone = request.Phone ?? string.Empty,
             Source = request.Source,
             Interest = request.Interest,
-            BudgetRange = request.BudgetRange,
+            BudgetRange = request.BudgetRange ?? string.Empty,
             PipelineStage = PipelineStage.Discovery,
             Status = LeadStatus.New
         };
