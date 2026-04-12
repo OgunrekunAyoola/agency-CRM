@@ -13,9 +13,12 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Container, Section } from '@/components/ui/LayoutPrimitives';
 import { Modal } from '@/components/ui/Modal';
 import { toast } from 'sonner';
+import { ErrorState } from '@/components/ui/StateVisuals';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { Briefcase, AlertCircle } from 'lucide-react';
 
 export default function ProjectsPage() {
-  const { projects, isLoading, createProject, isCreating } = useProjects();
+  const { projects, isLoading, error, createProject, isCreating } = useProjects();
   const { clients } = useClients();
   const { generateContract, isGenerating } = useContracts();
   const { generateFromProject, isGeneratingFromProject } = useInvoices();
@@ -82,7 +85,9 @@ export default function ProjectsPage() {
       </Section>
 
       <Section>
-        {isLoading ? (
+        {error ? (
+          <ErrorState reset={() => window.location.reload()} />
+        ) : isLoading ? (
           <div className="space-y-4">
             {[1, 2, 3].map((i) => (
               <div key={i} className="h-12 w-full bg-muted animate-pulse rounded" />
@@ -134,8 +139,13 @@ export default function ProjectsPage() {
               ))}
               {projects.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
-                    No projects found.
+                  <TableCell colSpan={5} className="p-0">
+                    <EmptyState 
+                        icon={Briefcase}
+                        title="No projects found"
+                        description="Start by creating your first project to manage delivery and tasks."
+                        action={<Button onClick={() => setIsModalOpen(true)}>Add Your First Project</Button>}
+                    />
                   </TableCell>
                 </TableRow>
               )}

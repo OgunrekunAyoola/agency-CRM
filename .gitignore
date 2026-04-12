@@ -53,3 +53,10 @@ yarn-error.log*
 **/postgres-data/
 *.db
 *.sqlite
+
+# --- Local .NET SDK & Scripts (Do Not Push) ---
+.dotnet/
+dotnet-install.ps1
+ef_migrate*.ps1
+login_error.json
+test_results*.txt

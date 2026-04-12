@@ -5,6 +5,8 @@ import { useProjects } from '@/hooks/queries/useProjects';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/Table';
 import { Container, Section } from '@/components/ui/LayoutPrimitives';
 import { Modal } from '@/components/ui/Modal';
+import { ErrorState } from '@/components/ui/StateVisuals';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { Input } from '@/components/ui/Input';
 
 import { Button } from '@/components/ui/Button';
@@ -12,9 +14,10 @@ import { toast } from 'sonner';
 import { useState } from 'react';
 import { InvoiceEditModal } from './components/InvoiceEditModal';
 import { Invoice } from '@/hooks/queries/useInvoices';
+import { AlertCircle, ReceiptText } from 'lucide-react';
 
 export default function InvoicesPage() {
-  const { invoices, isLoading, updateStatus, isUpdatingStatus, recordPayment, isRecordingPayment } = useInvoices();
+  const { invoices, isLoading, error, updateStatus, isUpdatingStatus, recordPayment, isRecordingPayment } = useInvoices();
   const { projects } = useProjects();
   
   const [editingInvoice, setEditingInvoice] = useState<Invoice | null>(null);
@@ -87,7 +90,9 @@ export default function InvoicesPage() {
       </Section>
 
       <Section>
-        {isLoading ? (
+        {error ? (
+          <ErrorState reset={() => window.location.reload()} />
+        ) : isLoading ? (
           <div className="space-y-4">
             {[1, 2, 3].map((i) => (
               <div key={i} className="h-12 w-full bg-muted animate-pulse rounded" />
@@ -156,9 +161,12 @@ export default function InvoicesPage() {
               ))}
               {invoices.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={8} className="text-center text-muted-foreground py-12">
-                    <div className="font-medium text-lg text-slate-400">No invoices found.</div>
-                    <p className="text-sm mt-1">Generate one from a Project or Contract to get started.</p>
+                  <TableCell colSpan={8} className="p-0">
+                    <EmptyState 
+                        icon={ReceiptText}
+                        title="No invoices found"
+                        description="Generate invoices from projects or contracts to start tracking your agency's revenue."
+                    />
                   </TableCell>
                 </TableRow>
               )}

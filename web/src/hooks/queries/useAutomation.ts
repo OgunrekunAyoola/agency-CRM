@@ -1,58 +1,35 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { api } from '@/lib/api';
 
-export interface TaskTemplate {
-  id: string;
-  serviceType: string;
-  taskTitle: string;
-  taskDescription: string;
-  defaultPriority: string;
-  tenantId: string;
-}
+/**
+ * useAutomation — wraps the two real automation endpoints exposed by the backend.
+ *
+ * Actual backend routes (AutomationController.cs, Route: "api/automation"):
+ *   POST /api/automation/run-monthly-billing
+ *   POST /api/automation/sync-ad-metrics?projectId=<uuid>
+ *
+ * There is NO /templates endpoint on the backend. The previous hook was calling
+ * non-existent endpoints and accessing `.data` on the raw JSON response (which
+ * api.ts does NOT return — it returns the parsed payload directly).
+ * Both bugs have been corrected here.
+ */
 
-export function useAutomation() {
-  const queryClient = useQueryClient();
-
-  const templatesQuery = useQuery({
-    queryKey: ['automation-templates'],
-    queryFn: async () => {
-      const response = await api.get<TaskTemplate[]>('/automation/templates');
-      return response.data;
-    },
+export const useAutomation = () => {
+  const runMonthlyBillingMutation = useMutation({
+    mutationFn: () => api.post<{ message: string }>('/api/automation/run-monthly-billing'),
   });
 
-  const createTemplateMutation = useMutation({
-    mutationFn: async (template: Partial<TaskTemplate>) => {
-      const response = await api.post<TaskTemplate>('/automation/templates', template);
-      return response.data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['automation-templates'] });
-    },
-  });
-
-  const deleteTemplateMutation = useMutation({
-    mutationFn: async (id: string) => {
-      await api.delete(`/automation/templates/${id}`);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['automation-templates'] });
-    },
-  });
-
-  const triggerOverdueCheckMutation = useMutation({
-    mutationFn: async () => {
-      const response = await api.post('/automation/trigger-overdue-check');
-      return response.data;
-    },
+  const syncAdMetricsMutation = useMutation({
+    mutationFn: (projectId: string) =>
+      api.post<{ message: string }>(
+        `/api/automation/sync-ad-metrics?projectId=${projectId}`,
+      ),
   });
 
   return {
-    templates: templatesQuery.data ?? [],
-    isLoading: templatesQuery.isLoading,
-    createTemplate: createTemplateMutation.mutateAsync,
-    deleteTemplate: deleteTemplateMutation.mutateAsync,
-    triggerOverdueCheck: triggerOverdueCheckMutation.mutateAsync,
-    isTriggering: triggerOverdueCheckMutation.isPending,
+    runMonthlyBilling: runMonthlyBillingMutation.mutateAsync,
+    isRunningBilling: runMonthlyBillingMutation.isPending,
+    syncAdMetrics: syncAdMetricsMutation.mutateAsync,
+    isSyncing: syncAdMetricsMutation.isPending,
   };
-}
+};

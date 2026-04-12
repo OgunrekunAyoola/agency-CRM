@@ -31,6 +31,10 @@ export interface Contract {
   successFeeValue: number;
   lastInvoicedAt?: string;
   createdAt: string;
+  // Portal fields
+  token: string;
+  hasBeenViewed: boolean;
+  viewedAt?: string;
 }
 
 export const useContracts = () => {

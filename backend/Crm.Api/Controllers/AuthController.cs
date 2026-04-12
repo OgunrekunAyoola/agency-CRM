@@ -44,6 +44,28 @@ public class AuthController : ControllerBase
         return Ok(response);
     }
 
+    [AllowAnonymous]
+    [HttpPost("register")]
+    public async Task<IActionResult> Register([FromBody] RegisterRequest request)
+    {
+        _logger.LogInformation("Registration attempt for email: {Email}, Agency: {Agency}", request.Email, request.AgencyName);
+        var response = await _authService.RegisterAsync(request);
+
+        if (response == null)
+        {
+            return BadRequest(new { Message = "User with this email already exists." });
+        }
+
+        // Auto-login after registration
+        var (loggedResponse, accessToken, refreshToken) = await _authService.LoginAsync(new LoginRequest { Email = request.Email, Password = request.Password }, GetIpAddress());
+        
+        SetTokenCookie("refresh_token", refreshToken!);
+        SetTokenCookie("access_token", accessToken!);
+
+        loggedResponse!.AccessToken = accessToken!;
+        return Ok(loggedResponse);
+    }
+
     [HttpPost("refresh")]
     public async Task<IActionResult> Refresh()
     {
@@ -88,6 +110,23 @@ public class AuthController : ControllerBase
         if (response == null) return Unauthorized();
 
         return Ok(response);
+    }
+
+    [AllowAnonymous]
+    [HttpPost("forgot-password")]
+    public async Task<IActionResult> ForgotPassword([FromBody] string email)
+    {
+        await _authService.ForgotPasswordAsync(email);
+        return Ok(new { Message = "If an account exists with that email, a reset link has been sent." });
+    }
+
+    [AllowAnonymous]
+    [HttpPost("reset-password")]
+    public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest request)
+    {
+        var success = await _authService.ResetPasswordAsync(request.Token, request.Password);
+        if (!success) return BadRequest(new { Message = "Invalid or expired token." });
+        return Ok(new { Message = "Password has been reset successfully." });
     }
 
     private void SetTokenCookie(string name, string token)

@@ -62,6 +62,7 @@ export const useAdMetrics = (projectId?: string) => {
   return {
     metrics: metricsQuery.data ?? [],
     isLoading: metricsQuery.isLoading,
+    error: metricsQuery.error ?? analyticsQuery.error,
     analytics: analyticsQuery.data,
     isAnalyticsLoading: analyticsQuery.isLoading,
     createMetric: createMetricMutation.mutateAsync,

@@ -34,4 +34,12 @@ public class ClientsController : ControllerBase
         _logger.LogInformation("Client created successfully with ID: {Id}", response.Id);
         return CreatedAtAction(nameof(GetClients), new { id = response.Id }, response);
     }
+
+    [HttpGet("{id:guid}/dashboard")]
+    public async Task<ActionResult<ClientDashboardDto>> GetClientDashboard(Guid id)
+    {
+        var dashboard = await _clientService.GetDashboardAsync(id);
+        if (dashboard == null) return NotFound();
+        return Ok(dashboard);
+    }
 }

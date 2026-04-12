@@ -17,7 +17,7 @@ import { toast } from 'sonner';
 
 export default function ProjectDetailsPage() {
   const { id: projectId } = useParams() as { id: string };
-  const { projects } = useProjects();
+  const { projects, isLoading: isProjectsLoading } = useProjects();
   const { tasks } = useTasks();
   const { 
     timeEntries, 
@@ -26,7 +26,8 @@ export default function ProjectDetailsPage() {
     isLoggingTime
   } = useTimeTracking(projectId);
   const { metrics, createMetric, isCreating: isLoggingMetric, analytics: projectAnalytics } = useAdMetrics(projectId);
-  const { accounts, linkAccount, unlinkAccount, sync, isSyncing } = useAdAccounts(projectId);
+  // isLinking is required for the Link Account modal submit button loading state
+  const { accounts, linkAccount, unlinkAccount, sync, isSyncing, isLinking } = useAdAccounts(projectId);
   
   const [activeTab, setActiveTab] = useState<'tasks' | 'timeline' | 'time' | 'ads' | 'team'>('tasks');
   const [isTimeModalOpen, setIsTimeModalOpen] = useState(false);
@@ -44,7 +45,34 @@ export default function ProjectDetailsPage() {
 
   const project = projects.find(p => p.id === projectId);
 
-  if (!project) return <Container><Section>Project not found</Section></Container>;
+  // Show skeleton while the projects list is still loading to avoid a false "not found" flash
+  if (isProjectsLoading) {
+    return (
+      <Container>
+        <Section>
+          <div className="space-y-4 animate-pulse">
+            <div className="h-8 w-64 bg-muted rounded" />
+            <div className="h-4 w-96 bg-muted rounded" />
+          </div>
+        </Section>
+      </Container>
+    );
+  }
+
+  if (!project) {
+    return (
+      <Container>
+        <Section>
+          <div className="text-center py-20">
+            <h2 className="text-xl font-semibold text-muted-foreground">Project not found</h2>
+            <p className="text-sm text-muted-foreground mt-2">
+              The project you&apos;re looking for doesn&apos;t exist or you don&apos;t have access to it.
+            </p>
+          </div>
+        </Section>
+      </Container>
+    );
+  }
 
   const handleLogTime = async (e: React.FormEvent) => {
     e.preventDefault();

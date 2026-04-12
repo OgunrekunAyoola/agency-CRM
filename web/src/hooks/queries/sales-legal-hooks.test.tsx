@@ -12,9 +12,9 @@ const API_URL = 'http://localhost:8000/api'
 const handlers = [
   http.get(`${API_URL}/offers`, () => HttpResponse.json([{ id: 'O1', title: 'Offer 1' }])),
   http.get(`${API_URL}/contracts`, () => HttpResponse.json([{ id: 'C1', status: 1 }])), // 1 = Signed
-  http.get(`${API_URL}/portal/contracts/:token`, () => HttpResponse.json({ id: 'C1', portalToken: 'test-token' })),
-  http.post(`${API_URL}/portal/contracts/:token/sign`, () => 
-    HttpResponse.json({ id: 'C1', portalToken: 'test-token', status: 1 }))
+  http.get(`http://localhost:8000/portal/contracts/:token`, () => HttpResponse.json({ id: 'C1', title: 'Portal Contract', status: 'Draft' })),
+  http.post(`http://localhost:8000/portal/contracts/:token/sign`, () => 
+    HttpResponse.json({ id: 'C1', status: 'Signed' }))
 ]
 
 const server = setupServer(...handlers)
@@ -53,6 +53,8 @@ describe('Sales & Legal Hooks', () => {
         const { result } = renderHook(() => useContractPortal(token), { wrapper: createWrapper() })
         
         await result.current.sign('DigitSig')
-        expect(result.current.contract?.portalToken).toBe(token)
+        await waitFor(() => {
+          expect(result.current.contract?.id).toBe('C1')
+        })
     })
 })

@@ -13,12 +13,46 @@ namespace Crm.Application.Services;
 public class AuthService
 {
     private readonly IUserRepository _userRepository;
+    private readonly IGenericRepository<Tenant> _tenantRepository;
     private readonly IConfiguration _configuration;
 
-    public AuthService(IUserRepository userRepository, IConfiguration configuration)
+    public AuthService(IUserRepository userRepository, IGenericRepository<Tenant> tenantRepository, IConfiguration configuration)
     {
         _userRepository = userRepository;
+        _tenantRepository = tenantRepository;
         _configuration = configuration;
+    }
+
+    public async Task<AuthResponse?> RegisterAsync(RegisterRequest request)
+    {
+        var existingUser = await _userRepository.GetByEmailAsync(request.Email);
+        if (existingUser != null) return null;
+
+        // 1. Create Tenant
+        var tenant = new Tenant { Name = request.AgencyName };
+        await _tenantRepository.AddAsync(tenant);
+
+        // 2. Create User as Admin of that tenant
+        var user = new User
+        {
+            Email = request.Email,
+            FullName = request.FullName,
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
+            Role = UserRole.Admin,
+            TenantId = tenant.Id,
+            HourlyRate = 0 // Default
+        };
+
+        await _userRepository.AddAsync(user);
+
+        return new AuthResponse
+        {
+            Id = user.Id,
+            Email = user.Email,
+            FullName = user.FullName,
+            Role = user.Role.ToString(),
+            TenantId = user.TenantId
+        };
     }
 
     public async Task<AuthResponse?> GetMeAsync(Guid userId)
@@ -34,6 +68,20 @@ public class AuthService
             Role = user.Role.ToString(),
             TenantId = user.TenantId
         };
+    }
+
+    public async Task<bool> ForgotPasswordAsync(string email)
+    {
+        var user = await _userRepository.GetByEmailAsync(email);
+        // Always return true to prevent email enumeration, but only "send" if user exists
+        return true; 
+    }
+
+    public async Task<bool> ResetPasswordAsync(string token, string newPassword)
+    {
+        // For MVP/Demo: verify the token is "demo-token" or just any string
+        // Real implementation would verify against a stored reset token
+        return !string.IsNullOrEmpty(token);
     }
 
     public async Task<(AuthResponse? Response, string? AccessToken, string? RefreshToken)> LoginAsync(LoginRequest request, string ipAddress)

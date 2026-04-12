@@ -1,15 +1,19 @@
 'use client';
 
 import { useState } from 'react';
-import { useLeads, LeadStatus, LeadSource, ServiceType, PipelineStage } from '@/hooks/queries/useLeads';
+import { useLeads, LeadStatus, LeadSource, ServiceType } from '@/hooks/queries/useLeads';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/Table';
 import { Container, Section } from '@/components/ui/LayoutPrimitives';
 import { Modal } from '@/components/ui/Modal';
+import { toast } from 'sonner';
+import { ErrorState } from '@/components/ui/StateVisuals';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { Users, AlertCircle } from 'lucide-react';
 
 export default function LeadsPage() {
-  const { leads, isLoading, createLead, isCreating, updateStatus, isUpdatingStatus } = useLeads();
+  const { leads, isLoading, error, createLead, isCreating, updateStatus, isUpdatingStatus } = useLeads();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [sortBy, setSortBy] = useState<'title' | 'date' | 'value'>('date');
   const [newLead, setNewLead] = useState({ 
@@ -40,8 +44,8 @@ export default function LeadsPage() {
         budgetRange: ''
       });
       setIsModalOpen(false);
-    } catch (err) {
-      console.error(err);
+    } catch {
+      toast.error('Failed to create lead. Please try again.');
     }
   };
 
@@ -73,7 +77,9 @@ export default function LeadsPage() {
       </Section>
 
       <Section>
-        {isLoading ? (
+        {error ? (
+          <ErrorState reset={() => window.location.reload()} />
+        ) : isLoading ? (
           <div className="space-y-4">
             {[1, 2, 3, 4].map((i) => (
               <div key={i} className="h-12 w-full bg-muted animate-pulse rounded" />
@@ -145,9 +151,13 @@ export default function LeadsPage() {
               ))}
               {leads.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center text-muted-foreground py-12">
-                    <div className="text-lg font-medium">No leads found</div>
-                    <p className="text-sm">Start by adding your first sales opportunity.</p>
+                  <TableCell colSpan={7} className="p-0">
+                    <EmptyState 
+                      icon={Users}
+                      title="No leads found"
+                      description="Start by adding your first sales opportunity to track your agency's growth."
+                      action={<Button onClick={() => setIsModalOpen(true)}>Add Your First Lead</Button>}
+                    />
                   </TableCell>
                 </TableRow>
               )}

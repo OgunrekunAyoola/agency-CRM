@@ -2,9 +2,11 @@
 
 import { createContext, useContext, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api';
+import { LoadingOverlay } from '@/components/ui/FailsafeProvider';
 
-interface User {
+export interface User {
   id: string;
   email: string;
   fullName: string;
@@ -15,7 +17,9 @@ interface User {
 interface AuthContextType {
   user: User | null;
   loading: boolean;
+  isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<void>;
+  register: (email: string, password: string, fullName: string, agencyName: string) => Promise<void>;
   logout: () => Promise<void>;
 }
 
@@ -25,15 +29,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     async function restoreSession() {
       try {
         const data = await api.get<User>('/api/auth/me');
         setUser(data);
-      } catch (err) {
-        // Silently fail if not logged in or token expired
-        console.log('Restoration failed or no active session.');
+      } catch {
+        // Silently fail — no active session or token expired
       } finally {
         setLoading(false);
       }
@@ -43,20 +47,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = async (email: string, password: string) => {
     const data = await api.post<User>('/api/auth/login', { email, password });
-    setUser(data); // data now only contains email and fullName
+    setUser(data);
     router.push('/dashboard');
   };
 
+  const register = async (email: string, password: string, fullName: string, agencyName: string) => {
+    const data = await api.post<User>('/api/auth/register', { email, password, fullName, agencyName });
+    setUser(data);
+    router.push('/dashboard');
+  };
 
   const logout = async () => {
-    await api.post('/api/auth/logout', {});
-    setUser(null);
-    router.push('/login');
+    try {
+      await api.post('/api/auth/logout', {});
+    } catch {
+      // Still clear local state even if the server call fails
+    } finally {
+      setUser(null);
+      // Clear all React Query cached data to prevent stale data leaking between sessions
+      queryClient.clear();
+      router.push('/login');
+    }
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout }}>
-      {children}
+    <AuthContext.Provider value={{ user, loading, isAuthenticated: !!user, login, register, logout }}>
+      {loading ? <LoadingOverlay /> : children}
     </AuthContext.Provider>
   );
 }

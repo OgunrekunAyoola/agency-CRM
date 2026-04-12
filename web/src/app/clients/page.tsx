@@ -1,15 +1,20 @@
 'use client';
 
 import { useState } from 'react';
-import { useClients, PriorityTier, Client } from '@/hooks/queries/useClients';
+import Link from 'next/link';
+import { useClients, PriorityTier } from '@/hooks/queries/useClients';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/Table';
 import { Container, Section } from '@/components/ui/LayoutPrimitives';
 import { Modal } from '@/components/ui/Modal';
+import { toast } from 'sonner';
+import { ErrorState } from '@/components/ui/StateVisuals';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { Building2, AlertCircle } from 'lucide-react';
 
 export default function ClientsPage() {
-  const { clients, isLoading, createClient, isCreating } = useClients();
+  const { clients, isLoading, error, createClient, isCreating } = useClients();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [sortBy, setSortBy] = useState<'name' | 'priority' | 'date'>('date');
   const [newClient, setNewClient] = useState({ 
@@ -34,8 +39,8 @@ export default function ClientsPage() {
         priority: PriorityTier.Tier3
       });
       setIsModalOpen(false);
-    } catch (err) {
-      console.error(err);
+    } catch {
+      toast.error('Failed to create client. Please try again.');
     }
   };
 
@@ -67,7 +72,9 @@ export default function ClientsPage() {
       </Section>
 
       <Section>
-        {isLoading ? (
+        {error ? (
+          <ErrorState reset={() => window.location.reload()} />
+        ) : isLoading ? (
           <div className="space-y-4">
             {[1, 2, 3].map((i) => (
               <div key={i} className="h-12 w-full bg-muted animate-pulse rounded" />
@@ -88,8 +95,13 @@ export default function ClientsPage() {
               {sortedClients.map((c) => (
                 <TableRow key={c.id}>
                   <TableCell>
-                    <div className="font-medium">{c.name}</div>
-                    <div className="text-xs text-muted-foreground">{c.legalName}</div>
+                    <Link
+                      href={`/clients/${c.id}`}
+                      className="block hover:text-indigo-600 transition-colors"
+                    >
+                      <div className="font-medium">{c.name}</div>
+                      <div className="text-xs text-muted-foreground">{c.legalName}</div>
+                    </Link>
                   </TableCell>
                   <TableCell>
                     <span className="text-sm">{c.industry || '-'}</span>
@@ -111,11 +123,15 @@ export default function ClientsPage() {
                   </TableCell>
                 </TableRow>
               ))}
-              {clients.length === 0 && (
+              {sortedClients.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center text-muted-foreground py-12">
-                    <div className="text-lg font-medium">No clients found</div>
-                    <p className="text-sm">Active leads will appear here once converted.</p>
+                  <TableCell colSpan={5} className="p-0">
+                    <EmptyState 
+                        icon={Building2}
+                        title="No clients found"
+                        description="Active leads will appear here once converted, or you can add a client manually."
+                        action={<Button onClick={() => setIsModalOpen(true)}>Add Your First Client</Button>}
+                    />
                   </TableCell>
                 </TableRow>
               )}

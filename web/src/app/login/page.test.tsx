@@ -1,17 +1,31 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
-import LoginPage from './page'
-import { vi, describe, it, expect } from 'vitest'
-import { useAuth } from '@/hooks/useAuth'
+import { vi } from 'vitest'
 
+// Mocking useAuth BEFORE imports that might use it
 vi.mock('@/hooks/useAuth', () => ({
   useAuth: vi.fn(),
 }))
 
-describe('LoginPage Component', () => {
-  it('renders login form correctly', () => {
-    (useAuth as any).mockReturnValue({ login: vi.fn() })
-    render(<LoginPage />)
+import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import LoginPage from './page'
+import { describe, it, expect, beforeEach } from 'vitest'
+import { useAuth } from '@/hooks/useAuth'
 
+describe('LoginPage Component', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    // Default mock implementation: not loading, no user
+    vi.mocked(useAuth).mockReturnValue({
+      login: vi.fn(),
+      register: vi.fn(),
+      logout: vi.fn(),
+      user: null,
+      loading: false,
+      isAuthenticated: false,
+    })
+  })
+
+  it('renders login form correctly', () => {
+    render(<LoginPage />)
     expect(screen.getByLabelText(/Email Address/i)).toBeInTheDocument()
     expect(screen.getByLabelText(/Password/i)).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /Sign In/i })).toBeInTheDocument()
@@ -19,7 +33,14 @@ describe('LoginPage Component', () => {
 
   it('calls login function on form submission', async () => {
     const mockLogin = vi.fn().mockResolvedValue({})
-    (useAuth as any).mockReturnValue({ login: mockLogin })
+    vi.mocked(useAuth).mockReturnValue({ 
+      login: mockLogin,
+      register: vi.fn(),
+      logout: vi.fn(),
+      user: null,
+      loading: false,
+      isAuthenticated: false,
+    })
 
     render(<LoginPage />)
 
@@ -38,15 +59,20 @@ describe('LoginPage Component', () => {
   })
 
   it('displays error message on failed login', async () => {
-    const mockLogin = vi.fn().mockRejectedValue(new Error('Invalid credentials'))
-    (useAuth as any).mockReturnValue({ login: mockLogin })
+    const mockLogin = vi.fn().mockRejectedValue(new Error('Invalid email or password'))
+    vi.mocked(useAuth).mockReturnValue({ 
+      login: mockLogin,
+      register: vi.fn(),
+      logout: vi.fn(),
+      user: null,
+      loading: false,
+      isAuthenticated: false,
+    })
 
     render(<LoginPage />)
 
     fireEvent.click(screen.getByRole('button', { name: /Sign In/i }))
 
-    await waitFor(() => {
-      expect(screen.getByText(/Invalid credentials/i)).toBeInTheDocument()
-    })
+    expect(await screen.findByText(/Invalid email or password/i)).toBeInTheDocument()
   })
 })

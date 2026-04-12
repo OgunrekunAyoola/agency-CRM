@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { useContractPortal } from '@/hooks/queries/useContractPortal';
 import { SignaturePad } from '@/components/portal/SignaturePad';
+import { toast } from 'sonner';
 import { 
   FileText, 
   ShieldCheck, 
@@ -14,6 +15,7 @@ import {
   Loader2,
   ExternalLink
 } from 'lucide-react';
+import { InvalidLinkState } from '@/components/ui/StateVisuals';
 
 export default function ContractPortalPage() {
   const params = useParams();
@@ -31,8 +33,8 @@ export default function ContractPortalPage() {
     try {
       await sign(dataUrl);
       setSignedSuccess(true);
-    } catch (err) {
-      console.error('Signing failed:', err);
+    } catch {
+      toast.error('Signing failed. Please try again or contact your account manager.');
     }
   };
 
@@ -47,12 +49,10 @@ export default function ContractPortalPage() {
   if (error || !contract) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
-        <div className="max-w-md w-full bg-white p-8 rounded-2xl shadow-sm border border-gray-200 text-center">
-          <AlertTriangle className="h-12 w-12 text-red-500 mx-auto mb-4" />
-          <h1 className="text-xl font-bold text-gray-900">Invalid or Expired Link</h1>
-          <p className="text-gray-500 mt-2">
-            This contract link is no longer valid. Please contact your account manager for a new one.
-          </p>
+        <div className="max-w-md w-full">
+          <InvalidLinkState 
+            description="This contract link is no longer valid or has expired. Please contact your account manager for a new one." 
+          />
         </div>
       </div>
     );

@@ -11,15 +11,60 @@ import { Modal } from '@/components/ui/Modal';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { toast } from 'sonner';
+import { ErrorState } from '@/components/ui/StateVisuals';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { AlertCircle, Archive, ArchiveRestore, Link2, Eye, Check, FileText } from 'lucide-react';
+
+const getPortalUrl = (token: string) =>
+  `${window.location.origin}/portal/${token}`;
+
+const handleCopyPortalLink = async (token: string) => {
+  const url = getPortalUrl(token);
+  try {
+    if (!navigator.clipboard) {
+      throw new Error('Clipboard API not available');
+    }
+    await navigator.clipboard.writeText(url);
+    toast.success('Portal link copied to clipboard');
+  } catch (err) {
+    console.error('Failed to copy portal link:', err);
+    toast.error('Could not copy automatically. Please copy this URL manually: ' + url, {
+      duration: 6000,
+    });
+  }
+};
+
+const PortalStatusBadge = ({ contract }: { contract: { status: ContractStatus; hasBeenViewed: boolean; signedAt?: string } }) => {
+  if (contract.status === ContractStatus.Signed) {
+    return (
+      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
+        <Check className="h-3 w-3" /> Signed
+      </span>
+    );
+  }
+  if (contract.hasBeenViewed) {
+    return (
+      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+        <Eye className="h-3 w-3" /> Viewed
+      </span>
+    );
+  }
+  return (
+    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+      Not Viewed
+    </span>
+  );
+};
 
 export default function ContractsPage() {
-  const { contracts, isLoading, signContract, isSigning, createContract, isCreating, updateStatus, isUpdatingStatus } = useContracts();
+  const { contracts, isLoading, error, signContract, isSigning, createContract, isCreating, updateStatus, isUpdatingStatus } = useContracts();
   const { projects } = useProjects();
   const { generateFromContract, isGeneratingFromContract } = useInvoices();
   const [generatingId, setGeneratingId] = useState<string | null>(null);
   const [signingId, setSigningId] = useState<string | null>(null);
   const [archivingId, setArchivingId] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [showArchived, setShowArchived] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
     totalAmount: 0,
@@ -106,18 +151,37 @@ export default function ContractsPage() {
       }
   };
 
-  // Filter out archived unless we want a toggle later
-  const activeContracts = contracts.filter(c => c.status !== ContractStatus.Archived);
+  // Archive filter — toggleable by user
+  const displayedContracts = showArchived
+    ? contracts
+    : contracts.filter((c) => c.status !== ContractStatus.Archived);
+  const archivedCount = contracts.filter((c) => c.status === ContractStatus.Archived).length;
 
   return (
     <Container>
-      <Section className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold tracking-tight">Contracts & Billing</h1>
-        <Button onClick={() => setIsModalOpen(true)}>New Contract</Button>
+      <Section className="flex items-center justify-between flex-wrap gap-3">
+        <h1 className="text-3xl font-bold tracking-tight">Contracts &amp; Billing</h1>
+        <div className="flex items-center gap-3">
+          {archivedCount > 0 && (
+            <button
+              onClick={() => setShowArchived((prev) => !prev)}
+              className="flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium text-muted-foreground hover:bg-muted transition-colors border"
+            >
+              {showArchived ? (
+                <><ArchiveRestore className="h-4 w-4" /> Hide Archived ({archivedCount})</>
+              ) : (
+                <><Archive className="h-4 w-4" /> Show Archived ({archivedCount})</>
+              )}
+            </button>
+          )}
+          <Button onClick={() => setIsModalOpen(true)}>New Contract</Button>
+        </div>
       </Section>
 
       <Section>
-        {isLoading ? (
+        {error ? (
+          <ErrorState reset={() => window.location.reload()} />
+        ) : isLoading ? (
           <div className="space-y-4">
             {[1, 2, 3].map((i) => (
               <div key={i} className="h-12 w-full bg-muted animate-pulse rounded" />
@@ -132,12 +196,13 @@ export default function ContractsPage() {
                 <TableHead>Amount (Total)</TableHead>
                 <TableHead>Billing Terms</TableHead>
                 <TableHead>Status</TableHead>
+                <TableHead>Portal</TableHead>
                 <TableHead>Created At</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {activeContracts.map((c) => (
+              {displayedContracts.map((c) => (
                 <TableRow key={c.id}>
                   <TableCell className="font-medium">{c.title}</TableCell>
                   <TableCell>{getProjectName(c.projectId)}</TableCell>
@@ -163,6 +228,20 @@ export default function ContractsPage() {
                         <span className="text-xs text-green-600 font-medium">Signed (v{c.version || 1})</span>
                       ) : (
                         <span className="text-xs text-amber-600 font-medium">Pending (v{c.version || 1})</span>
+                      )}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex flex-col gap-1.5">
+                      <PortalStatusBadge contract={c} />
+                      {c.token && (
+                        <button
+                          id={`copy-portal-link-${c.id}`}
+                          onClick={() => handleCopyPortalLink(c.token)}
+                          className="inline-flex items-center gap-1 text-xs text-indigo-600 hover:text-indigo-800 hover:underline transition-colors"
+                        >
+                          <Link2 className="h-3 w-3" /> Copy Link
+                        </button>
                       )}
                     </div>
                   </TableCell>
@@ -203,8 +282,13 @@ export default function ContractsPage() {
               ))}
               {contracts.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
-                    No contracts found. Generate one from a Project.
+                  <TableCell colSpan={8} className="p-0">
+                    <EmptyState 
+                        icon={FileText}
+                        title="No contracts found"
+                        description="Professional agreements will appear here once drafted or generated from projects."
+                        action={<Button onClick={() => setIsModalOpen(true)}>Draft Your First Contract</Button>}
+                    />
                   </TableCell>
                 </TableRow>
               )}

@@ -102,6 +102,8 @@ builder.Services.AddScoped<IInvoiceService, InvoiceService>();
 builder.Services.AddScoped<TimeTrackingService>();
 builder.Services.AddScoped<IAutomationService, AutomationService>();
 builder.Services.AddScoped<IAdMetricService, AdMetricService>();
+builder.Services.AddScoped<ISettingsService, SettingsService>();
+builder.Services.AddScoped<IStatsService, StatsService>();
 
 // Ad Platforms
 builder.Services.AddHttpClient<GoogleAdsClient>();

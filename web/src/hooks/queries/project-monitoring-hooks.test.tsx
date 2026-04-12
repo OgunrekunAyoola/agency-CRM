@@ -13,8 +13,8 @@ const API_URL = 'http://localhost:8000/api'
 const handlers = [
   http.get(`${API_URL}/projects`, () => HttpResponse.json([{ id: 'P1', name: 'Project 1' }])),
   http.get(`${API_URL}/tasks`, () => HttpResponse.json([{ id: 'T1', title: 'Task 1' }])),
-  http.get(`${API_URL}/stats`, () => HttpResponse.json({ clientsCount: 10, revenueTotal: 50000 })),
-  http.get(`${API_URL}/timeentries`, () => HttpResponse.json([{ id: 'TE1', hours: 5 }]))
+  http.get(`${API_URL}/stats`, () => HttpResponse.json({ totalClientsCount: 10, totalRevenue: 50000 })),
+  http.get(`${API_URL}/timeentries/project/P1`, () => HttpResponse.json([{ id: 'TE1', hours: 5 }]))
 ]
 
 const server = setupServer(...handlers)
@@ -51,7 +51,7 @@ describe('Project Monitoring Hooks', () => {
     it('useStats fetches successfully', async () => {
         const { result } = renderHook(() => useStats(), { wrapper: createWrapper() })
         await waitFor(() => expect(result.current.isLoading).toBe(false))
-        expect(result.current.data?.clients).toBe(10)
+        expect(result.current.data?.totalClientsCount).toBe(10)
     })
 
     it('useTimeEntries fetches successfully', async () => {

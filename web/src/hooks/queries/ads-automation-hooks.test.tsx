@@ -10,9 +10,11 @@ import { http, HttpResponse } from 'msw'
 const API_URL = 'http://localhost:8000/api'
 
 const handlers = [
-  http.get(`${API_URL}/projectadaccounts`, () => HttpResponse.json([{ id: 'A1', platform: 0, name: 'FB Ads' }])),
+  http.get(`${API_URL}/projects/P1/adaccounts`, () => HttpResponse.json([{ id: 'A1', platform: 0, name: 'FB Ads' }])),
   http.get(`${API_URL}/admetrics/analytics`, () => HttpResponse.json({ totalSpend: 1000, totalImpressions: 50000 })),
-  http.post(`${API_URL}/automation/trigger`, () => new HttpResponse(null, { status: 204 }))
+  // Backend endpoint is run-monthly-billing (not the old /trigger stub)
+  http.post(`${API_URL}/automation/run-monthly-billing`, () => HttpResponse.json({ message: 'Monthly Billing Job triggered manually' })),
+  http.post(`${API_URL}/automation/sync-ad-metrics`, () => HttpResponse.json({ message: 'Ad metrics sync triggered' })),
 ]
 
 const server = setupServer(...handlers)
@@ -46,9 +48,16 @@ describe('Ads & Automation Hooks', () => {
         expect(result.current.analytics?.totalSpend).toBe(1000)
     })
 
-    it('useAutomation triggers successfully', async () => {
+    it('useAutomation runMonthlyBilling triggers successfully', async () => {
         const { result } = renderHook(() => useAutomation(), { wrapper: createWrapper() })
-        await result.current.triggerOverdueCheck()
-        // No error thrown is the success assertion
+        // runMonthlyBilling replaces the old triggerOverdueCheck
+        const response = await result.current.runMonthlyBilling()
+        expect(response.message).toContain('Monthly Billing')
+    })
+
+    it('useAutomation syncAdMetrics triggers for a project', async () => {
+        const { result } = renderHook(() => useAutomation(), { wrapper: createWrapper() })
+        const response = await result.current.syncAdMetrics('project-123')
+        expect(response.message).toContain('sync triggered')
     })
 })

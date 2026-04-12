@@ -2,58 +2,127 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useState } from 'react';
+import { useAuth } from '@/hooks/useAuth';
+import { MobileDrawer } from './MobileDrawer';
+import {
+  LayoutDashboard,
+  Users,
+  TrendingUp,
+  FileText,
+  Briefcase,
+  CheckSquare,
+  FileSignature,
+  Receipt,
+  Settings,
+  Plug,
+  BarChart3,
+  Menu,
+  LogOut,
+} from 'lucide-react';
 
-const NAV_ITEMS = [
-  { label: 'Clients', href: '/clients', color: 'hover:text-blue-400' },
-  { label: 'Leads', href: '/leads', color: 'hover:text-green-400' },
-  { label: 'Offers', href: '/offers', color: 'hover:text-purple-400' },
-  { label: 'Projects', href: '/projects', color: 'hover:text-amber-400' },
-  { label: 'Tasks', href: '/tasks', color: 'hover:text-emerald-400' },
-  { label: 'Contracts', href: '/contracts', color: 'hover:text-pink-400' },
-  { label: 'Invoices', href: '/invoices', color: 'hover:text-rose-400' },
-  { label: 'Settings', href: '/settings', color: 'hover:text-slate-400' },
+export const NAV_ITEMS = [
+  { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/clients', label: 'Clients', icon: Users },
+  { href: '/leads', label: 'Leads', icon: TrendingUp },
+  { href: '/offers', label: 'Offers', icon: FileText },
+  { href: '/projects', label: 'Projects', icon: Briefcase },
+  { href: '/tasks', label: 'Tasks', icon: CheckSquare },
+  { href: '/contracts', label: 'Contracts', icon: FileSignature },
+  { href: '/invoices', label: 'Invoices', icon: Receipt },
+  { href: '/analytics', label: 'Analytics', icon: BarChart3 },
+  { href: '/integrations', label: 'Integrations', icon: Plug },
+  { href: '/settings', label: 'Settings', icon: Settings },
 ];
 
-export default function Navbar() {
+export function Navbar() {
   const pathname = usePathname();
+  const { user, logout } = useAuth();
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
+
+  const isActive = (href: string) =>
+    href === '/dashboard' ? pathname === href : pathname.startsWith(href);
 
   return (
-    <nav className="sticky top-0 z-50 w-full border-b bg-slate-950/80 backdrop-blur-md text-white shadow-lg">
-      <div className="container mx-auto flex h-16 items-center justify-between px-4">
-        <div className="flex items-center gap-8">
-            <Link href="/dashboard" className="flex items-center gap-2">
-                <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center font-bold text-lg shadow-inner">A</div>
-                <span className="text-xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">
-                    Agency CRM
-                </span>
+    <>
+      <nav className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex h-16 items-center justify-between gap-6">
+            {/* Logo */}
+            <Link href="/dashboard" className="flex items-center gap-2 shrink-0">
+              <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
+                <span className="text-white font-bold text-sm">A</span>
+              </div>
+              <span className="font-bold text-lg hidden sm:block">Agency CRM</span>
             </Link>
-            
-            <div className="hidden lg:flex items-center gap-1">
-                {NAV_ITEMS.map((item) => (
-                    <Link 
-                        key={item.href}
-                        href={item.href} 
-                        className={`px-4 py-2 text-sm font-medium transition-all duration-200 rounded-md
-                            ${pathname === item.href 
-                                ? 'bg-white/10 text-white shadow-sm ring-1 ring-white/20' 
-                                : `text-slate-400 ${item.color} hover:bg-white/5`
-                            }`}
-                    >
-                        {item.label}
-                    </Link>
-                ))}
-            </div>
-        </div>
 
-        <div className="flex items-center gap-4">
-          <Link 
-            href="/login" 
-            className="text-sm font-semibold bg-rose-600/90 hover:bg-rose-600 px-4 py-2 rounded-lg transition-all shadow-md active:scale-95"
-          >
-            Logout
-          </Link>
+            {/* Desktop nav links */}
+            <div className="hidden lg:flex items-center gap-1 flex-1 overflow-x-auto">
+              {NAV_ITEMS.map(({ href, label, icon: Icon }) => (
+                <Link
+                  key={href}
+                  href={href}
+                  className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors whitespace-nowrap ${
+                    isActive(href)
+                      ? 'bg-primary/10 text-primary'
+                      : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                  }`}
+                >
+                  <Icon className="h-4 w-4" />
+                  {label}
+                </Link>
+              ))}
+            </div>
+
+            {/* Right side: user info + logout (desktop) / hamburger (mobile) */}
+            <div className="flex items-center gap-3 shrink-0">
+              {/* User display — desktop */}
+              {user && (
+                <span className="hidden lg:block text-sm text-muted-foreground">
+                  {user.fullName || user.email}
+                </span>
+              )}
+
+              {/* Logout button — desktop */}
+              <button
+                onClick={() => logout()}
+                className="hidden lg:flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+                aria-label="Log out"
+              >
+                <LogOut className="h-4 w-4" />
+                Logout
+              </button>
+
+              {/* Hamburger — mobile only */}
+              <button
+                onClick={() => setIsMobileOpen(true)}
+                className="flex lg:hidden items-center justify-center h-10 w-10 rounded-md hover:bg-muted transition-colors"
+                aria-label="Open navigation menu"
+                aria-expanded={isMobileOpen}
+                aria-controls="mobile-nav-drawer"
+              >
+                <Menu className="h-5 w-5" />
+              </button>
+            </div>
+          </div>
         </div>
-      </div>
-    </nav>
+      </nav>
+
+      {/* Mobile drawer */}
+      <MobileDrawer
+        id="mobile-nav-drawer"
+        isOpen={isMobileOpen}
+        onClose={() => setIsMobileOpen(false)}
+        navItems={NAV_ITEMS}
+        currentPath={pathname}
+        user={user}
+        onLogout={() => {
+          setIsMobileOpen(false);
+          logout();
+        }}
+      />
+    </>
   );
 }
+
+export default Navbar;

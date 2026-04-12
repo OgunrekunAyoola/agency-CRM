@@ -33,6 +33,12 @@ public class UserRepository : IUserRepository
             .FirstOrDefaultAsync(u => u.RefreshTokens.Any(t => t.Token == token));
     }
 
+    public async Task AddAsync(User user)
+    {
+        await _context.Users.AddAsync(user);
+        await _context.SaveChangesAsync();
+    }
+
     public async Task UpdateAsync(User user)
     {
         await _context.SaveChangesAsync();

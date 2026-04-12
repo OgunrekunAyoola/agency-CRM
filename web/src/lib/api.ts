@@ -1,11 +1,19 @@
-// Use relative paths in the browser to leverage the Next.js proxy (next.config.ts)
-// This avoids ERR_CONNECTION_REFUSED and CORS issues in the browser console.
-const API_BASE_URL = typeof window !== 'undefined' ? '' : (process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000');
+import { signals } from './signals';
 
-export async function apiRequest<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
-  const headers = {
+// Use relative paths in the browser to leverage the Next.js proxy (next.config.ts)
+// Server-side calls (e.g. SSR) use the full backend URL to avoid loopback issues.
+const API_BASE_URL =
+  (typeof window !== 'undefined' && process.env.NODE_ENV !== 'test')
+    ? ''
+    : process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
+
+export async function apiRequest<T>(
+  endpoint: string,
+  options: RequestInit = {},
+): Promise<T> {
+  const headers: HeadersInit = {
     'Content-Type': 'application/json',
-    ...options.headers,
+    ...(options.headers as Record<string, string>),
   };
 
   const fetchOptions: RequestInit = {
@@ -17,7 +25,12 @@ export async function apiRequest<T>(endpoint: string, options: RequestInit = {})
   const normalizedEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
   let response = await fetch(`${API_BASE_URL}${normalizedEndpoint}`, fetchOptions);
 
-  if (response.status === 401 && !endpoint.includes('/auth/login') && !endpoint.includes('/auth/refresh')) {
+  // --- 401 Auto-refresh ---
+  if (
+    response.status === 401 &&
+    !endpoint.includes('/auth/login') &&
+    !endpoint.includes('/auth/refresh')
+  ) {
     try {
       const refreshResponse = await fetch(`${API_BASE_URL}/api/auth/refresh`, {
         method: 'POST',
@@ -26,50 +39,73 @@ export async function apiRequest<T>(endpoint: string, options: RequestInit = {})
       });
 
       if (refreshResponse.ok) {
+        // Retry original request with fresh cookies
         response = await fetch(`${API_BASE_URL}${normalizedEndpoint}`, fetchOptions);
+      } else {
+        // Refresh token also expired — force re-login
+        if (typeof window !== 'undefined') {
+          window.location.href = '/login';
+        }
+        throw new Error('Session expired. Please log in again.');
       }
     } catch (err) {
+      if (err instanceof Error && err.message === 'Session expired. Please log in again.') {
+        throw err;
+      }
       console.error('Auto-refresh failed', err);
     }
   }
 
+  // --- Error handling with user-visible states ---
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
-    const message = errorData.message || errorData.Message || `API error: ${response.status}`;
-    
-    // Import toast dynamically to avoid server-side issues if api.ts is used in SSR
-    const { toast } = await import("sonner");
-    
-    if (response.status >= 400 && response.status < 500) {
-      toast.error(message);
+    const message =
+      (errorData as { message?: string; Message?: string }).message ||
+      (errorData as { message?: string; Message?: string }).Message ||
+      `API error: ${response.status}`;
+
+    // --- Global Signals for Failsafe UI ---
+    if (response.status === 401 && !endpoint.includes('/auth/login')) {
+      signals.emit('401', message);
+    } else if (response.status === 403) {
+      signals.emit('403', message);
     } else if (response.status >= 500) {
-      toast.error("A server error occurred. Please try again later.");
+      signals.emit('500', 'A server error occurred.');
+    }
+
+    // Dynamic import avoids SSR issues with Sonner
+    if (response.status >= 400 && response.status < 500 && response.status !== 401 && response.status !== 403) {
+      const { toast } = await import('sonner');
+      toast.error(message);
     }
 
     throw new Error(message);
   }
 
+  // --- Guard 204 No Content / 205 Reset Content (no body to parse) ---
+  if (response.status === 204 || response.status === 205) {
+    return null as unknown as T;
+  }
 
-  return response.json();
+  return response.json() as Promise<T>;
 }
 
 export const api = {
   get: <T>(endpoint: string) => apiRequest<T>(endpoint, { method: 'GET' }),
-  post: <T>(endpoint: string, body: unknown) => 
-    apiRequest<T>(endpoint, { 
-      method: 'POST', 
-      body: JSON.stringify(body) 
+  post: <T>(endpoint: string, body?: unknown) =>
+    apiRequest<T>(endpoint, {
+      method: 'POST',
+      body: JSON.stringify(body ?? {}),
     }),
-  patch: <T>(endpoint: string, body: unknown) => 
-    apiRequest<T>(endpoint, { 
-      method: 'PATCH', 
-      body: JSON.stringify(body) 
+  patch: <T>(endpoint: string, body: unknown) =>
+    apiRequest<T>(endpoint, {
+      method: 'PATCH',
+      body: JSON.stringify(body),
     }),
-  put: <T>(endpoint: string, body: unknown) => 
-    apiRequest<T>(endpoint, { 
-      method: 'PUT', 
-      body: JSON.stringify(body) 
+  put: <T>(endpoint: string, body: unknown) =>
+    apiRequest<T>(endpoint, {
+      method: 'PUT',
+      body: JSON.stringify(body),
     }),
+  delete: <T>(endpoint: string) => apiRequest<T>(endpoint, { method: 'DELETE' }),
 };
-
-
