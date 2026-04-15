@@ -1,7 +1,14 @@
 'use client';
 
 import React from 'react';
-import { format, differenceInDays, startOfMonth, addMonths, endOfMonth, eachDayOfInterval, isSameDay } from 'date-fns';
+import { format, differenceInDays, startOfMonth, addMonths, endOfMonth } from 'date-fns';
+
+function eachDayOfInterval({ start, end }: { start: Date; end: Date }): Date[] {
+  const days: Date[] = [];
+  const current = new Date(start);
+  while (current <= end) { days.push(new Date(current)); current.setDate(current.getDate() + 1); }
+  return days;
+}
 import { cn } from '@/lib/utils';
 
 interface GanttTask {

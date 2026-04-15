@@ -4,7 +4,7 @@ import { usePathname } from 'next/navigation';
 import { Navbar } from './Navbar';
 
 // Routes where the CRM Navbar must NOT appear (public-facing pages)
-const NAVBAR_EXCLUDED_PREFIXES = ['/portal', '/login'];
+const NAVBAR_EXCLUDED_PREFIXES = ['/portal', '/login', '/register', '/signup', '/forgot-password', '/reset-password'];
 
 /**
  * NavbarWrapper renders the Navbar only on authenticated CRM routes.
@@ -13,7 +13,9 @@ const NAVBAR_EXCLUDED_PREFIXES = ['/portal', '/login'];
  */
 export function NavbarWrapper() {
   const pathname = usePathname();
-  const shouldHide = NAVBAR_EXCLUDED_PREFIXES.some((prefix) => pathname?.startsWith(prefix));
+  const shouldHide =
+    pathname === '/' ||
+    NAVBAR_EXCLUDED_PREFIXES.some((prefix) => prefix !== '/' && pathname?.startsWith(prefix));
 
   if (shouldHide) return null;
   return <Navbar />;

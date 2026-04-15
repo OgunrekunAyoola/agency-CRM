@@ -26,8 +26,7 @@ export const handlers = [
   // Auth
   http.post(`${API_URL}/auth/login`, async () => {
     return HttpResponse.json({
-      user: { id: '1', email: 'admin@example.com', fullName: 'Admin User' },
-      accessToken: 'mock-access-token'
+      id: '1', email: 'admin@example.com', fullName: 'Admin User', role: 'Admin'
     })
   }),
 

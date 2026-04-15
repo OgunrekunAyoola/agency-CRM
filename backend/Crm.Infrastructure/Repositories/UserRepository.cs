@@ -33,6 +33,12 @@ public class UserRepository : IUserRepository
             .FirstOrDefaultAsync(u => u.RefreshTokens.Any(t => t.Token == token));
     }
 
+    public async Task<User?> GetByResetTokenAsync(string tokenHash)
+    {
+        return await _context.Users
+            .FirstOrDefaultAsync(u => u.PasswordResetToken == tokenHash);
+    }
+
     public async Task AddAsync(User user)
     {
         await _context.Users.AddAsync(user);

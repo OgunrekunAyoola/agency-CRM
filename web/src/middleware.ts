@@ -9,33 +9,45 @@ import type { NextRequest } from 'next/server';
  *   SetTokenCookie("refresh_token", refreshToken)
  *
  * Both are HttpOnly — readable in middleware (server-side) but NOT in client JS.
- *
- * NOTE: The audit incorrectly suggested checking 'auth_session' — the real
- * cookie is 'access_token'. Using the wrong name would lock out every user.
  */
 
-// Routes that do NOT require authentication
-const PUBLIC_PATHS = ['/login', '/portal'];
+// Routes that are fully public (no session required) — prefix matches
+const PUBLIC_PREFIXES = [
+  '/login',
+  '/register',
+  '/signup',
+  '/portal',
+  '/forgot-password',
+  '/reset-password',
+];
+
+// Exact public paths (not prefix-matched to avoid accidental catch-all)
+const PUBLIC_EXACT = ['/'];
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Skip auth check for explicitly public paths
-  const isPublic = PUBLIC_PATHS.some((p) => pathname.startsWith(p));
-
   // Check for the access_token cookie set by the .NET backend
   const hasSession = request.cookies.has('access_token');
+
+  // Landing page: redirect authenticated users straight to the dashboard
+  if (pathname === '/' && hasSession) {
+    return NextResponse.redirect(new URL('/dashboard', request.url));
+  }
+
+  const isPublic =
+    PUBLIC_EXACT.includes(pathname) ||
+    PUBLIC_PREFIXES.some((p) => pathname.startsWith(p));
 
   if (!isPublic && !hasSession) {
     // Unauthenticated request to a protected route → redirect to login
     const loginUrl = new URL('/login', request.url);
-    // Preserve the original destination so login can redirect back
     loginUrl.searchParams.set('redirect', pathname);
     return NextResponse.redirect(loginUrl);
   }
 
-  if (pathname === '/login' && hasSession) {
-    // Already authenticated user visiting the login page → redirect to dashboard
+  // Already-authenticated users visiting auth pages → redirect to dashboard
+  if (hasSession && (pathname.startsWith('/login') || pathname.startsWith('/register') || pathname.startsWith('/signup'))) {
     return NextResponse.redirect(new URL('/dashboard', request.url));
   }
 
@@ -43,6 +55,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  // Run on all routes except Next.js internals, static files, and the API proxy
   matcher: ['/((?!api|_next/static|_next/image|favicon.ico|.*\\..*).*)'],
 };

@@ -1,5 +1,16 @@
 import { signals } from './signals';
 
+export class ApiError extends Error {
+  constructor(public readonly status: number, message: string) {
+    super(message);
+    this.name = 'ApiError';
+  }
+}
+
+export function isApiError(err: unknown): err is ApiError {
+  return err instanceof ApiError;
+}
+
 // Use relative paths in the browser to leverage the Next.js proxy (next.config.ts)
 // Server-side calls (e.g. SSR) use the full backend URL to avoid loopback issues.
 const API_BASE_URL =
@@ -79,7 +90,7 @@ export async function apiRequest<T>(
       toast.error(message);
     }
 
-    throw new Error(message);
+    throw new ApiError(response.status, message);
   }
 
   // --- Guard 204 No Content / 205 Reset Content (no body to parse) ---

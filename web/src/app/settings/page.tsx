@@ -5,10 +5,11 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { toast } from 'sonner';
 import Link from 'next/link';
-import { ArrowLeft, Building2, CreditCard, Zap, Link as LinkIcon, AlertTriangle, Info } from 'lucide-react';
+import { ArrowLeft, Building2, CreditCard, Zap, Link as LinkIcon, AlertTriangle, Info, KeyRound } from 'lucide-react';
 import { useSettings } from '@/hooks/queries/useSettings';
 import { ErrorState } from '@/components/ui/StateVisuals';
 import { useState, useEffect } from 'react';
+import { api } from '@/lib/api';
 
 export default function SettingsPage() {
   const { settings, isLoading, isBackendMissing, updateSettings, isSaving } = useSettings();
@@ -18,16 +19,46 @@ export default function SettingsPage() {
 
   // When API data loads, seed the form
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (!isLoading) setForm(settings);
   }, [isLoading, settings]);
 
-  const handleSave = async (e: React.FormEvent) => {
+  // Change password state
+  const [pwForm, setPwForm] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
+  const [pwErrors, setPwErrors] = useState<Record<string, string>>({});
+  const [isSavingPw, setIsSavingPw] = useState(false);
+
+  const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
       await updateSettings(form);
       toast.success('Settings updated successfully');
     } catch {
       toast.error('Failed to save settings. Please try again.');
+    }
+  };
+
+  const handleChangePassword = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const errors: Record<string, string> = {};
+    if (!pwForm.currentPassword) errors.currentPassword = 'Current password is required.';
+    if (!pwForm.newPassword || pwForm.newPassword.length < 8) errors.newPassword = 'New password must be at least 8 characters.';
+    if (pwForm.newPassword !== pwForm.confirmPassword) errors.confirmPassword = 'Passwords do not match.';
+    if (Object.keys(errors).length > 0) { setPwErrors(errors); return; }
+
+    setIsSavingPw(true);
+    try {
+      await api.post('/api/auth/change-password', {
+        currentPassword: pwForm.currentPassword,
+        newPassword: pwForm.newPassword,
+      });
+      toast.success('Password changed successfully');
+      setPwForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
+      setPwErrors({});
+    } catch {
+      toast.error('Failed to change password. Check that your current password is correct.');
+    } finally {
+      setIsSavingPw(false);
     }
   };
 
@@ -182,6 +213,56 @@ export default function SettingsPage() {
               </div>
             </form>
           )}
+
+          {/* Change Password — always visible, independent of backend missing state */}
+          <form onSubmit={handleChangePassword} className="space-y-6" noValidate>
+            <Section className="bg-white p-6 rounded-xl border shadow-sm">
+              <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                <KeyRound className="h-5 w-5 text-rose-600" />
+                Change Password
+              </h2>
+              <div className="space-y-4 max-w-sm">
+                <Input
+                  label="Current Password"
+                  type="password"
+                  placeholder="••••••••"
+                  value={pwForm.currentPassword}
+                  onChange={(e) => { setPwForm(p => ({ ...p, currentPassword: e.target.value })); if (pwErrors.currentPassword) setPwErrors(p => ({ ...p, currentPassword: '' })); }}
+                  required
+                  error={pwErrors.currentPassword}
+                />
+                <Input
+                  label="New Password"
+                  type="password"
+                  placeholder="Min. 8 characters"
+                  value={pwForm.newPassword}
+                  onChange={(e) => { setPwForm(p => ({ ...p, newPassword: e.target.value })); if (pwErrors.newPassword) setPwErrors(p => ({ ...p, newPassword: '' })); }}
+                  required
+                  error={pwErrors.newPassword}
+                />
+                <Input
+                  label="Confirm New Password"
+                  type="password"
+                  placeholder="Re-enter new password"
+                  value={pwForm.confirmPassword}
+                  onChange={(e) => { setPwForm(p => ({ ...p, confirmPassword: e.target.value })); if (pwErrors.confirmPassword) setPwErrors(p => ({ ...p, confirmPassword: '' })); }}
+                  required
+                  error={pwErrors.confirmPassword}
+                />
+              </div>
+              <div className="flex justify-start pt-4">
+                <Button
+                  type="submit"
+                  isLoading={isSavingPw}
+                  disabled={isSavingPw}
+                  variant="secondary"
+                  className="px-6"
+                >
+                  Update Password
+                </Button>
+              </div>
+            </Section>
+          </form>
         </div>
       </div>
     </Container>

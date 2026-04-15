@@ -5,6 +5,7 @@ using Crm.Domain.Entities;
 using Crm.Application.Interfaces;
 using Crm.Application.DTOs.Auth;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Cryptography;
 
@@ -15,12 +16,14 @@ public class AuthService
     private readonly IUserRepository _userRepository;
     private readonly IGenericRepository<Tenant> _tenantRepository;
     private readonly IConfiguration _configuration;
+    private readonly ILogger<AuthService> _logger;
 
-    public AuthService(IUserRepository userRepository, IGenericRepository<Tenant> tenantRepository, IConfiguration configuration)
+    public AuthService(IUserRepository userRepository, IGenericRepository<Tenant> tenantRepository, IConfiguration configuration, ILogger<AuthService> logger)
     {
         _userRepository = userRepository;
         _tenantRepository = tenantRepository;
         _configuration = configuration;
+        _logger = logger;
     }
 
     public async Task<AuthResponse?> RegisterAsync(RegisterRequest request)
@@ -73,15 +76,50 @@ public class AuthService
     public async Task<bool> ForgotPasswordAsync(string email)
     {
         var user = await _userRepository.GetByEmailAsync(email);
-        // Always return true to prevent email enumeration, but only "send" if user exists
-        return true; 
+        if (user == null) return true; // Prevent email enumeration
+
+        // Generate a cryptographically secure random token
+        var rawToken = Convert.ToHexString(RandomNumberGenerator.GetBytes(32));
+        // Store the SHA-256 hash (never store the raw token)
+        using var sha256 = SHA256.Create();
+        var tokenHash = Convert.ToHexString(sha256.ComputeHash(Encoding.UTF8.GetBytes(rawToken)));
+
+        user.PasswordResetToken = tokenHash;
+        user.PasswordResetTokenExpiry = DateTime.UtcNow.AddHours(1);
+        await _userRepository.UpdateAsync(user);
+
+        var frontendBase = _configuration["FrontendBaseUrl"] ?? "http://localhost:3000";
+        var resetLink = $"{frontendBase}/reset-password/{rawToken}";
+
+        // TODO: send email via IEmailService when available
+        _logger.LogInformation("Password reset link for {Email}: {Link}", user.Email, resetLink);
+
+        return true;
     }
 
     public async Task<bool> ResetPasswordAsync(string token, string newPassword)
     {
-        // For MVP/Demo: verify the token is "demo-token" or just any string
-        // Real implementation would verify against a stored reset token
-        return !string.IsNullOrEmpty(token);
+        using var sha256 = SHA256.Create();
+        var tokenHash = Convert.ToHexString(sha256.ComputeHash(Encoding.UTF8.GetBytes(token)));
+
+        var user = await _userRepository.GetByResetTokenAsync(tokenHash);
+        if (user == null || user.PasswordResetTokenExpiry < DateTime.UtcNow) return false;
+
+        user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(newPassword);
+        user.PasswordResetToken = null;
+        user.PasswordResetTokenExpiry = null;
+        await _userRepository.UpdateAsync(user);
+        return true;
+    }
+
+    public async Task<bool> ChangePasswordAsync(Guid userId, string currentPassword, string newPassword)
+    {
+        var user = await _userRepository.GetByIdAsync(userId);
+        if (user == null || !BCrypt.Net.BCrypt.Verify(currentPassword, user.PasswordHash)) return false;
+
+        user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(newPassword);
+        await _userRepository.UpdateAsync(user);
+        return true;
     }
 
     public async Task<(AuthResponse? Response, string? AccessToken, string? RefreshToken)> LoginAsync(LoginRequest request, string ipAddress)

@@ -52,6 +52,7 @@ describe('useAuth Hook', () => {
       id: '1',
       email: 'admin@example.com',
       fullName: 'Admin User',
+      role: 'Admin',
     })
     
     // VERIFY REDIRECT

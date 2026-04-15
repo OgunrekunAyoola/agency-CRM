@@ -72,7 +72,7 @@ describe('DashboardPageClient', () => {
     // When stats fail, we show the ErrorState component
     await waitFor(() => {
       expect(screen.getByText(/Something went wrong/i)).toBeInTheDocument();
-      expect(screen.getByText(/Try Again/i)).toBeInTheDocument();
+      expect(screen.getAllByText(/Try Again/i).length).toBeGreaterThan(0);
     }, { timeout: 5000 });
   });
 });

@@ -1,3 +1,5 @@
+'use client';
+
 import { ErrorState } from '@/components/ui/StateVisuals';
 
 export default function GlobalError({

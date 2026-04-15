@@ -129,6 +129,32 @@ public class AuthController : ControllerBase
         return Ok(new { Message = "Password has been reset successfully." });
     }
 
+    [Authorize]
+    [HttpPost("onboarding/complete")]
+    public async Task<IActionResult> CompleteOnboarding([FromBody] OnboardingRequest request)
+    {
+        var userId = _userContext.UserId;
+        if (!userId.HasValue) return Unauthorized();
+
+        var success = await _authService.CompleteOnboardingAsync(userId.Value, request);
+        if (!success) return NotFound(new { Message = "User not found." });
+
+        return Ok(new { Message = "Onboarding completed successfully." });
+    }
+
+    [Authorize]
+    [HttpPost("change-password")]
+    public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest request)
+    {
+        var userId = _userContext.UserId;
+        if (!userId.HasValue) return Unauthorized();
+
+        var success = await _authService.ChangePasswordAsync(userId.Value, request.CurrentPassword, request.NewPassword);
+        if (!success) return BadRequest(new { Message = "Current password is incorrect." });
+
+        return Ok(new { Message = "Password changed successfully." });
+    }
+
     private void SetTokenCookie(string name, string token)
     {
         var cookieOptions = new CookieOptions

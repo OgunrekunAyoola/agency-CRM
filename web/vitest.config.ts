@@ -12,11 +12,6 @@ export default defineConfig({
     teardownTimeout: 30000,
     setupFiles: ['./src/test/setup.ts'],
     pool: 'threads',
-    poolOptions: {
-      threads: {
-        singleThread: true,
-      },
-    },
   },
   resolve: {
     alias: {
