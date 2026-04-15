@@ -50,8 +50,20 @@ export async function apiRequest<T>(
       });
 
       if (refreshResponse.ok) {
-        // Retry original request with fresh cookies
-        response = await fetch(`${API_BASE_URL}${normalizedEndpoint}`, fetchOptions);
+        // Persist the new access token so the retried request sends a fresh Bearer header.
+        const refreshData = await refreshResponse.json().catch(() => ({}));
+        if ((refreshData as { accessToken?: string }).accessToken) {
+          localStorage.setItem('access_token', (refreshData as { accessToken: string }).accessToken);
+        }
+        // Rebuild fetch options with the updated token.
+        const retryOptions: RequestInit = {
+          ...fetchOptions,
+          headers: {
+            ...(fetchOptions.headers as Record<string, string>),
+            Authorization: `Bearer ${localStorage.getItem('access_token')}`,
+          },
+        };
+        response = await fetch(`${API_BASE_URL}${normalizedEndpoint}`, retryOptions);
       } else {
         // Refresh token failed - fallback to signaling an expired session
         localStorage.removeItem('access_token');

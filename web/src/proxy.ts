@@ -2,13 +2,13 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 /**
- * Route protection middleware.
+ * Route protection proxy.
  *
  * Cookie names are set by AuthController.cs:
  *   SetTokenCookie("access_token", accessToken)
  *   SetTokenCookie("refresh_token", refreshToken)
  *
- * Both are HttpOnly — readable in middleware (server-side) but NOT in client JS.
+ * Both are HttpOnly — readable in proxy (server-side) but NOT in client JS.
  */
 
 // Routes that are fully public (no session required) — prefix matches
@@ -24,7 +24,10 @@ const PUBLIC_PREFIXES = [
 // Exact public paths (not prefix-matched to avoid accidental catch-all)
 const PUBLIC_EXACT = ['/'];
 
-export function middleware(request: NextRequest) {
+// Auth pages where an already-authenticated user should be bounced away from
+const AUTH_PAGE_PREFIXES = ['/login', '/register', '/signup'];
+
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Check for the access_token cookie set by the .NET backend
@@ -40,14 +43,20 @@ export function middleware(request: NextRequest) {
     PUBLIC_PREFIXES.some((p) => pathname.startsWith(p));
 
   if (!isPublic && !hasSession) {
-    // Unauthenticated request to a protected route → redirect to login
+    // Unauthenticated request to a protected route → redirect to login.
+    // Skip the redirect param for /onboarding so we don't send new users
+    // back there after they later log in on a different device.
     const loginUrl = new URL('/login', request.url);
-    loginUrl.searchParams.set('redirect', pathname);
+    if (pathname !== '/onboarding') {
+      loginUrl.searchParams.set('redirect', pathname);
+    }
     return NextResponse.redirect(loginUrl);
   }
 
-  // Already-authenticated users visiting auth pages → redirect to dashboard
-  if (hasSession && (pathname.startsWith('/login') || pathname.startsWith('/register') || pathname.startsWith('/signup'))) {
+  // Already-authenticated users visiting auth pages → redirect to dashboard.
+  // (Onboarding-aware routing is handled client-side via the User.isOnboarded
+  // flag so the proxy doesn't need to know about onboarding state.)
+  if (hasSession && AUTH_PAGE_PREFIXES.some((p) => pathname.startsWith(p))) {
     return NextResponse.redirect(new URL('/dashboard', request.url));
   }
 

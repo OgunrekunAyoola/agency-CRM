@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { api } from '@/lib/api';
 import { Button } from '@/components/ui/Button';
@@ -15,6 +15,13 @@ export default function OnboardingPage() {
   const [stepErrors, setStepErrors] = useState<Record<string, string>>({});
   const { user } = useAuth();
   const router = useRouter();
+
+  // Redirect away if the user has already completed onboarding.
+  useEffect(() => {
+    if (user?.isOnboarded) {
+      router.replace('/dashboard');
+    }
+  }, [user, router]);
 
   const [formData, setFormData] = useState({
     jobTitle: '',
